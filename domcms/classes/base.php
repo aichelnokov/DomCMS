@@ -4,10 +4,10 @@ if(!defined('IN_SITE')) exit;
 
 class base {
 
-	public $name='';//Èìÿ ìîäóëÿ
-	protected $registry=null;	//Ðååñòð îáúåêòîâ äëÿ óñêîðåíèÿ äîñòóïà
+	public $name='';//Ð˜Ð¼Ñ Ð¼Ð¾Ð´ÑƒÐ»Ñ
+	protected $registry=null;	//Ð ÐµÐµÑÑ‚Ñ€ Ð¾Ð±ÑŠÐµÐºÑ‚Ð¾Ð² Ð´Ð»Ñ ÑƒÑÐºÐ¾Ñ€ÐµÐ½Ð¸Ñ Ð´Ð¾ÑÑ‚ÑƒÐ¿Ð°
 	
-	// Êîíñòðóêòîð, ñîçäàåò íîâûé îáúåêò, óñòàíàâëèâàåò åãî íàñòðîéêè è ðåæèì ðàáîòû
+	// ÐšÐ¾Ð½ÑÑ‚Ñ€ÑƒÐºÑ‚Ð¾Ñ€, ÑÐ¾Ð·Ð´Ð°ÐµÑ‚ Ð½Ð¾Ð²Ñ‹Ð¹ Ð¾Ð±ÑŠÐµÐºÑ‚, ÑƒÑÑ‚Ð°Ð½Ð°Ð²Ð»Ð¸Ð²Ð°ÐµÑ‚ ÐµÐ³Ð¾ Ð½Ð°ÑÑ‚Ñ€Ð¾Ð¹ÐºÐ¸ Ð¸ Ñ€ÐµÐ¶Ð¸Ð¼ Ñ€Ð°Ð±Ð¾Ñ‚Ñ‹
 	public function __construct($name,$config=array()) {
 		$this->name=$name;
 		base::extend($this,array_merge(array(),$config));
@@ -31,8 +31,8 @@ class base {
 		return true;
 	}
 	
-	// Åñëè ñóùåñòâóåò ìåòîä set{name} âûçûâàåì åãî è ïåðåäàåì åìó ïàðàìåòð value
-	// Èíà÷å ïðîñòî ñîçäàåì ïîëå
+	// Ð•ÑÐ»Ð¸ ÑÑƒÑ‰ÐµÑÑ‚Ð²ÑƒÐµÑ‚ Ð¼ÐµÑ‚Ð¾Ð´ set{name} Ð²Ñ‹Ð·Ñ‹Ð²Ð°ÐµÐ¼ ÐµÐ³Ð¾ Ð¸ Ð¿ÐµÑ€ÐµÐ´Ð°ÐµÐ¼ ÐµÐ¼Ñƒ Ð¿Ð°Ñ€Ð°Ð¼ÐµÑ‚Ñ€ value
+	// Ð˜Ð½Ð°Ñ‡Ðµ Ð¿Ñ€Ð¾ÑÑ‚Ð¾ ÑÐ¾Ð·Ð´Ð°ÐµÐ¼ Ð¿Ð¾Ð»Ðµ
 	function __set($name,$value) {
 		if(method_exists($this,'set'.$name)) $this->{'set'.$name}($value);
 		else $this->{$name}=$value; 
@@ -47,8 +47,8 @@ class base {
 		}
 	}
 	
-	// Åñëè ñóùåñòâóåò ìåòîä get{name} âûçûâàåì åãî è âîçâðàùàåì ðåçóëüòàò
-	// Èíà÷å âîçâðàùàåò false
+	// Ð•ÑÐ»Ð¸ ÑÑƒÑ‰ÐµÑÑ‚Ð²ÑƒÐµÑ‚ Ð¼ÐµÑ‚Ð¾Ð´ get{name} Ð²Ñ‹Ð·Ñ‹Ð²Ð°ÐµÐ¼ ÐµÐ³Ð¾ Ð¸ Ð²Ð¾Ð·Ð²Ñ€Ð°Ñ‰Ð°ÐµÐ¼ Ñ€ÐµÐ·ÑƒÐ»ÑŒÑ‚Ð°Ñ‚
+	// Ð˜Ð½Ð°Ñ‡Ðµ Ð²Ð¾Ð·Ð²Ñ€Ð°Ñ‰Ð°ÐµÑ‚ false
 	function __get($name) {
 		if(method_exists($this,'get'.$name)) return $this->{'get'.$name}();
 		else return false;
@@ -89,7 +89,7 @@ class base {
 		elseif( $ext == 'gif' )	$ext = 'gif';
 		elseif( $ext == 'png' ) $ext = 'png';			
 		elseif ( $ext == 'swf' ) $ext = 'swf';
-		else return ''; // íåèçâåñòíûé òèï ôàéëà
+		else return ''; // Ð½ÐµÐ¸Ð·Ð²ÐµÑÑ‚Ð½Ñ‹Ð¹ Ñ‚Ð¸Ð¿ Ñ„Ð°Ð¹Ð»Ð°
 		return substr(md5(uniqid(rand(), true)), 0, rand(15, 20)).'.'.$ext;
 	}
 	
@@ -110,13 +110,13 @@ class base {
 		}
 		if(!isset($_REQUEST[$var]) || $_REQUEST[$var]=='') return $default;
 		
-		//Ïðîâåðÿåì ñîîòâåòñòâèå òèïîâ ïîëó÷àåìîé ïåðåìåííîé è ïåðåìåííîé ïî óìîë÷àíèþ
+		//ÐŸÑ€Ð¾Ð²ÐµÑ€ÑÐµÐ¼ ÑÐ¾Ð¾Ñ‚Ð²ÐµÑ‚ÑÑ‚Ð²Ð¸Ðµ Ñ‚Ð¸Ð¿Ð¾Ð² Ð¿Ð¾Ð»ÑƒÑ‡Ð°ÐµÐ¼Ð¾Ð¹ Ð¿ÐµÑ€ÐµÐ¼ÐµÐ½Ð½Ð¾Ð¹ Ð¸ Ð¿ÐµÑ€ÐµÐ¼ÐµÐ½Ð½Ð¾Ð¹ Ð¿Ð¾ ÑƒÐ¼Ð¾Ð»Ñ‡Ð°Ð½Ð¸ÑŽ
 		if(is_array($_REQUEST[$var]) ^ is_array($default)) {
 			return ( is_array($default) ) ? array() : $default;
 		}
 		$var = $_REQUEST[$var];
 		if( !is_array($default) ) {
-			// Ïðèíóäèòåëüíî óñòàíàâëèâàåì íóæíûé òèï äàííûõ
+			// ÐŸÑ€Ð¸Ð½ÑƒÐ´Ð¸Ñ‚ÐµÐ»ÑŒÐ½Ð¾ ÑƒÑÑ‚Ð°Ð½Ð°Ð²Ð»Ð¸Ð²Ð°ÐµÐ¼ Ð½ÑƒÐ¶Ð½Ñ‹Ð¹ Ñ‚Ð¸Ð¿ Ð´Ð°Ð½Ð½Ñ‹Ñ…
 			$type = gettype($default);
 			settype($var, $type);
 
@@ -124,7 +124,7 @@ class base {
 				if ($coding == true)
 					$var = trim(htmlspecialchars($var));			
 
-			// ýêðàíèðóåì â çàâèñèìîñòè îò íàñòðîåê php 
+			// ÑÐºÑ€Ð°Ð½Ð¸Ñ€ÑƒÐµÐ¼ Ð² Ð·Ð°Ð²Ð¸ÑÐ¸Ð¼Ð¾ÑÑ‚Ð¸ Ð¾Ñ‚ Ð½Ð°ÑÑ‚Ñ€Ð¾ÐµÐº php 
 			return strtr((( MAGIC_QUOTES ) ? stripslashes($var) : $var),array("'"=>""));
 		} else {
 			return strtr($var,array("'"=>""));
