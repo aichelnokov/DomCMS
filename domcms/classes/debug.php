@@ -41,13 +41,12 @@ class debug extends base {
 		);
 	}
 	
-	/*function debug_to_template() {
-		global $template,$debug,$start_execution_time;
-		if($template->debug=DEBUG) {
-			addDebug('Время выполнения скрипта',microtime(true)-$start_execution_time,'Общее');
-			$template->debug_data=$debug;
+	function toTemplate() {
+		if(DEBUG) {
+			$this->addDebug('Время выполнения скрипта',microtime(true)-$this->start_execution_time,'Общее');
+			$this->registry->template->debug = $this->registry->debug->debug;
 		}
-	}*/
+	}
 	
 }
 

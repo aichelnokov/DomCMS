@@ -9,6 +9,7 @@ define('ROOT_DIR',realpath(__DIR__).'\\');
 
 require_once(ROOT_DIR.'domcms\loader.php');
 
-require_once(ROOT_DIR.'templates\domcms.html');
+$template->file = 'domcms.html';
+$template->render(false,'404.html');
 
 ?>

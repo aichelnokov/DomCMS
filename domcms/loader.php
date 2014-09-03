@@ -15,6 +15,7 @@ require_once(__DIR__.'\classes\base.php');
 // Example:
 // global $objects
 require_once(__DIR__.'\classes\debug.php');
+require_once(__DIR__.'\classes\templater.php');
 require_once(__DIR__.'\classes\db_mysqli.php');
 
 ?>
