@@ -25,9 +25,6 @@ class base {
 		$this->registry=registry::get_registry();
 		$this->registry->{$this->name}=null;
 		$this->registry->{$this->name}=&$this;
-		if ($mode = getvar('mode','')) if($mode != $this->mode) {
-			$this->mode = $mode;
-		}
 		return true;
 	}
 	

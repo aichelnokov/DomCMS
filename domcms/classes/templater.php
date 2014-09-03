@@ -6,7 +6,7 @@ class J_Templater extends base {
 	protected $data = array('debug'=>'');
 	public $file = '';
 	public $text = '';
-	public $path = '/templates/';
+	public $path = '';
 	
 	function init() {
 		return parent::init();

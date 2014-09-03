@@ -5,13 +5,14 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 
 define('IN_SITE',true);
-define('ROOT_DIR',realpath(__DIR__).'\\');
+define('ROOT_DIR',realpath(__DIR__.'\\..').'\\');
+echo ROOT_DIR;
 
 require_once(ROOT_DIR.'domcms\loader.php');
 
-$template->file = 'domcms.html';
+$template->file = 'login.html';
 
-$template->path = '/templates/';
+$template->path = '/domcms/templates/';
 $template->render(false,'404.html');
 
 ?>
