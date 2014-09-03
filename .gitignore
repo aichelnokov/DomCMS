@@ -1,2 +1,5 @@
 .htaccess
 logs/*
+cache/*
+cache/*/*
+cache/*/*/*
