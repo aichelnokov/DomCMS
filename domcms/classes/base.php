@@ -7,9 +7,7 @@ class base {
 	public $name='';//Имя модуля
 	protected $registry=null;	//Реестр объектов для ускорения доступа
 	
-	/*
-		Конструктор, создает новый объект, устанавливает его настройки и режим работы
-	*/
+	// Конструктор, создает новый объект, устанавливает его настройки и режим работы
 	public function __construct($name,$config=array()) {
 		$this->name=$name;
 		base::extend($this,array_merge(array(),$config));
@@ -33,12 +31,11 @@ class base {
 		return true;
 	}
 	
+	// Если существует метод set{name} вызываем его и передаем ему параметр value
+	// Иначе просто создаем поле
 	function __set($name,$value) {
-		if(method_exists($this,'set'.$name)) {//Если существует метод set{name}
-			$this->{'set'.$name}($value);//Вызываем его и передаем ему параметр value
-		} else {
-			$this->{$name}=$value;//Иначе просто создаем поле
-		}
+		if(method_exists($this,'set'.$name)) $this->{'set'.$name}($value);
+		else $this->{$name}=$value; 
 	}
 	
 	function __destruct() {
@@ -50,22 +47,21 @@ class base {
 		}
 	}
 	
+	// Если существует метод get{name} вызываем его и возвращаем результат
+	// Иначе возвращает false
 	function __get($name) {
-		if(method_exists($this,'get'.$name)) {//Если существует метод get{name}
-			return $this->{'get'.$name}();//Вызываем его и возвращаем результат
-		} else {
-			return false;//Иначе возвращает false
-		}
+		if(method_exists($this,'get'.$name)) return $this->{'get'.$name}();
+		else return false;
 	}
 	
 	// Static methods
 	
+	// Extends object
 	static function extend(&$object,$data) {
-		foreach($data as $k=>$v) {
-			$object->{$k}=$v;
-		}
+		foreach($data as $k=>$v) $object->{$k}=$v;
 	}
 	
+	// Create an object if is not exists, or return his
 	static function j($name,$class='') {
 		static $objects;
 		global $config;
@@ -85,25 +81,54 @@ class base {
 		return $obj?$obj:false;
 	}
 	
+	// Get dynamic image filename, $name - base filename
 	static function get_image_filename ( $name ) {		
 		$ext = array_pop(explode( '.', $name ));				
 		$ext = strtolower ( $ext );
-		if( $ext == 'jpg' || $ext == 'jpeg' ) {
-			$ext = 'jpg';			
-		}
-		elseif( $ext == 'gif' ) {
-			$ext = 'gif';			
-		}
-		elseif( $ext == 'png' ) {
-			$ext = 'png';			
-		}
-		elseif ( $ext == 'swf' ) {
-			$ext = 'swf';
-		}
-		else {
-			return ''; // неизвестный тип файла			
-		}
+		if( $ext == 'jpg' || $ext == 'jpeg' ) $ext = 'jpg';
+		elseif( $ext == 'gif' )	$ext = 'gif';
+		elseif( $ext == 'png' ) $ext = 'png';			
+		elseif ( $ext == 'swf' ) $ext = 'swf';
+		else return ''; // неизвестный тип файла
 		return substr(md5(uniqid(rand(), true)), 0, rand(15, 20)).'.'.$ext;
+	}
+	
+	// Returns variable from $_REQUEST array and verify datatype
+	function getvar($var,$default,$coding=true,$cookie=false,$n_index=false) {	
+		if(is_array($var)) {
+			$result = array();
+			foreach($var as $k=>$v) {
+				$result[$n_index?$v:count($result)] = base::getvar($v,is_array($default)?$default[$k]:$default,$cookie);
+			}
+			return $result;
+		}	
+		if(empty($_REQUEST[$var])) {
+			if ( isset($_POST[$var]) || isset ($_GET[$var]) )
+				$_REQUEST[$var] = ( isset($_POST[$var]) ) ? $_POST[$var] : $_GET[$var];		
+			else
+				return $default;
+		}
+		if(!isset($_REQUEST[$var]) || $_REQUEST[$var]=='') return $default;
+		
+		//Проверяем соответствие типов получаемой переменной и переменной по умолчанию
+		if(is_array($_REQUEST[$var]) ^ is_array($default)) {
+			return ( is_array($default) ) ? array() : $default;
+		}
+		$var = $_REQUEST[$var];
+		if( !is_array($default) ) {
+			// Принудительно устанавливаем нужный тип данных
+			$type = gettype($default);
+			settype($var, $type);
+
+			if( $type == 'string' )
+				if ($coding == true)
+					$var = trim(htmlspecialchars($var));			
+
+			// экранируем в зависимости от настроек php 
+			return strtr((( MAGIC_QUOTES ) ? stripslashes($var) : $var),array("'"=>""));
+		} else {
+			return strtr($var,array("'"=>""));
+		}
 	}
 	
 }

@@ -118,9 +118,9 @@ class db_mysqli extends base {
 			} else {
 				return false;
 			}
-			if(!empty($_SESSION['debug']))
-				if ($_SESSION['debug']) 
-					addDebug($query,microtime(true)-$t,'mysql',array(200,500,2000));
+			if(!empty(DEBUG))
+				if (DEBUG) 
+					debug::addDebug($query,microtime(true)-$t,'mysql',array(200,500,2000));
 			return ( $this->query_result ) ? $this->query_result : false;
 		}
 		return false;
