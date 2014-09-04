@@ -36,6 +36,7 @@ class J_Templater extends base {
 				$this->registry->debug->toTemplate();
 		if (!file_exists(ROOT_DIR.$this->path.$this->file))
 			$this->file = $error;
+		header('Content-Type: text/html; charset=utf-8');
 		if($this->file) if($return) return $twig->getHTMLFromFile($this->file,$this->getVariables()); else echo $twig->getHTMLFromFile($this->file,$this->getVariables());
 		if($this->text) if($return) return $twig->getHTMLFromText($this->text,$this->getVariables()); else echo $twig->getHTMLFromText($this->text,$this->getVariables());	
 	}

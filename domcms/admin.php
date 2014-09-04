@@ -6,7 +6,6 @@ ini_set('display_startup_errors', 1);
 
 define('IN_SITE',true);
 define('ROOT_DIR',realpath(__DIR__.'\\..').'\\');
-echo ROOT_DIR;
 
 require_once(ROOT_DIR.'domcms\loader.php');
 

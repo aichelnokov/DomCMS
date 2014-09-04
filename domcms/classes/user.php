@@ -29,14 +29,15 @@ class J_User extends base {
 			if( !$this->page )	$this->page = ( !empty($_SERVER['REQUEST_URI']) ) ? $_SERVER['REQUEST_URI'] : getenv('REQUEST_URI');
 		}
 		
-		if (base::getvar('logout',false)!==false) $this->logout();
-		elseif (base::getvar('login',false)!==false) $this->login();
+		if (base::getvar('signout',false)!==false) $this->signout();
+		elseif (base::getvar('signin',false)!==false) $this->signin();
+		elseif (base::getvar('signup',false)!==false) $this->signup();
 		else $this->check();
 		
 		return true;
 	}
 	
-	function logout() {
+	function signout() {
 		$this->id=0;
 		setcookie ( 'j_user', '', 0, '/' );
 		unset($_COOKIE['j_user']);
@@ -44,26 +45,26 @@ class J_User extends base {
 		redirect("/");
 	}
 	
-	function login() {
+	function signup() {
 		$login = getvar ( 'login', '' );
 		$pass =  getvar ( 'password', '' );
 		$mem = getvar ( 'remember', false );
-		return !$this->check()?$this->full_login($login,$pass,$mem):false;
+		return !$this->check()?$this->full_signin($login,$pass,$mem):false;
 	}
 	
-	function full_login($login,$password,$remember) {
+	function full_signin($login,$password,$remember) {
 		$db = $this->registry->db;
 		if ( !empty($login) ) {
-			$row = $db->get_data( "SELECT * FROM users WHERE user_login = '".$login."' AND user_password = '".md5($password)."'",false );
+			$row = $db->get_data( "SELECT * FROM users WHERE login = '".$login."' AND password = '".md5($password)."'",false );
 			if ( $row ) {
-				if ( !$row['user_active'] ) {
+				if ( !$row['active'] ) {
 					$this->error = "Пользователь заблокирован!";
 				} else {
 					extend($this,$row);
 					if(empty($this->lang)) $this->lang = 'ru';
 					if ( $remember ) {
 						$time = time() + 60 * 60 * 24 * 30;
-						setcookie ( 'j_user', $row['id'].'|||'.$row['user_login'], $time, '/' );
+						setcookie ( 'j_user', $row['id'].'|||'.$row['login'], $time, '/' );
 					}
 				}
 			} else {

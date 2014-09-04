@@ -2,8 +2,9 @@
 
 if(!defined('IN_SITE')) exit;
 
-date_default_timezone_set("Europe/Moscow");
 session_start();
+date_default_timezone_set("Europe/Moscow");
+
 define('MAGIC_QUOTES', ( get_magic_quotes_gpc() ) ? true : false );
 srand(time());
 
