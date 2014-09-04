@@ -39,8 +39,7 @@ class base {
 		$this->registry->{$this->name}=null;
 		$this->registry=null;
 		if($this->cache=='session') {
-			if (method_exists($this,'setUrls')) $this->setUrls(true);
-			$_SESSION['OBJECTS'][$this->name]=serialize($this); 
+			$_SESSION['OBJECTS'][$this->name]=serialize($this);
 		}
 	}
 	
@@ -90,7 +89,7 @@ class base {
 		return substr(md5(uniqid(rand(), true)), 0, rand(15, 20)).'.'.$ext;
 	}
 	
-	function redirect( $url ) {
+	function redirect( $url='' ) {
 		if($url=='') {//Если url пустой, значит просто надо обновить страницу
 			header('Refresh:0;');
 		} else {

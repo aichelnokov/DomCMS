@@ -9,8 +9,10 @@ define('ROOT_DIR',realpath(__DIR__.'\\..').'\\');
 
 require_once(ROOT_DIR.'domcms\loader.php');
 
-if (!$user->isValid()) $template->file = 'login.html';
+if (!$users->isValid()) $template->file = 'login.html';
 else $template->file = 'domcms.html';
+
+
 
 $template->path = '/domcms/templates/';
 $template->render(false,'404.html');

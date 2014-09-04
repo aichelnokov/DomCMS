@@ -2,7 +2,7 @@
 
 if(!defined('IN_SITE')) exit;
 
-class J_User extends base {
+class users extends base {
 	
 	public $browser		= ''; //Браузер пользователя
 	public $ip			= 0; //IP адрес (понадобится для банов и геотаргетинга)
@@ -10,6 +10,27 @@ class J_User extends base {
 	public $page		= ''; //Адрес на какой он странице
 	public $error		= '';
 	public $cache 		= 'session';
+	
+	private $model = array (
+		'users' => array(
+			'id' => array('type'=>'INT(255)','default'=>0,'flags'=>'NOT NULL UNSIGNED AUTO_INCREMENT','inner_keys'=>'UNIQUE PRIMARY'),
+			'login' => array('type'=>'VARCHAR(255)','default'=>''),
+			'password' => array('type'=>'VARCHAR(255)','default'=>''),
+			'active' => array('type'=>'INT(1)','default'=>1,'flags'=>'NOT NULL UNSIGNED'),
+			'name' => array('type'=>'VARCHAR(255)','default'=>''),
+			'phone' => array('type'=>'VARCHAR(255)','default'=>''),
+			'mail' => array('type'=>'VARCHAR(255)','default'=>''),
+			'address' => array('type'=>'VARCHAR(255)','default'=>''),
+			'postcode' => array('type'=>'INT(8)','default'=>0,'flags'=>'NOT NULL UNSIGNED'),
+			'sex' => array('type'=>'INT(1)','default'=>1,'flags'=>'NOT NULL UNSIGNED'),
+			'birdthdate' => array('type'=>'INT(255)','default'=>0,'flags'=>'NOT NULL UNSIGNED'),
+			'about' => array('type'=>'TEXT','default'=>''),
+		),
+		'users_groups' => array(
+			'id_users' => array('type'=>'INT(255)','default'=>0,'flags'=>'UNSIGNED','outer_keys'=>'users(id) ON UPDATE CASCADE ON DELETE CASCADE'),
+			'id_groups' => array('type'=>'INT(255)','default'=>0,'flags'=>'UNSIGNED','outer_keys'=>'groups(id) ON UPDATE CASCADE ON DELETE SET NULL'),
+		),
+	);
 	
 	function restore() {
 		parent::restore();
@@ -20,7 +41,7 @@ class J_User extends base {
 	function init() {
 		global $db;
 		
-		if(empty($_SESSION['OBJECTS']['user'])) { //Если сессии пользователя еще нет - добываем данные о нем
+		if(empty($_SESSION['OBJECTS'][$this->name])) { //Если сессии пользователя еще нет - добываем данные о нем
 			$this->browser = ( !empty($_SERVER['HTTP_USER_AGENT']) ) ? htmlspecialchars($_SERVER['HTTP_USER_AGENT']) : '';
 			$this->enter_time = time();
 			$this->forwarded_for = ( !empty($_SERVER['HTTP_X_FORWARDED_FOR']) ) ? $_SERVER['HTTP_X_FORWARDED_FOR'] : '';
@@ -30,17 +51,17 @@ class J_User extends base {
 		}
 		
 		if (base::getvar('signout',false)!==false) $this->signout();
-		elseif (base::getvar('signin',false)!==false) $this->signin();
+		elseif (base::getvar('signin',false)!==false) { if ($this->signin()) { base::redirect($_SERVER['REQUEST_URI']); } }
 		elseif (base::getvar('signup',false)!==false) $this->signup();
 		else $this->check();
-		
-		return true;
+		$this->getAccess();
+		return parent::init();
 	}
 	
 	function signout() {
 		$this->id=0;
-		setcookie ( 'j_user', '', 0, '/' );
-		unset($_COOKIE['j_user']);
+		setcookie ( 'domcms', '', 0, '/' );
+		unset($_COOKIE['domcms']);
 		session_destroy();
 		base::redirect("/domcms/");
 	}
@@ -49,7 +70,7 @@ class J_User extends base {
 		$login = base::getvar ( 'login', '' );
 		$pass =  base::getvar ( 'password', '' );
 		$mem = base::getvar ( 'remember', false );
-		return !$this->check()?$this->full_signin($login,$pass,$mem):false;
+		return $this->full_signin($login,$pass,$mem);
 	}
 	
 	function full_signin($login,$password,$remember) {
@@ -61,10 +82,9 @@ class J_User extends base {
 					$this->registry->template->error = "Пользователь заблокирован!";
 				} else {
 					base::extend($this,$row);
-					if(empty($this->lang)) $this->lang = 'ru';
 					if ( $remember ) {
 						$time = time() + 60 * 60 * 24 * 30;
-						setcookie ( 'j_user', $row['id'].'|||'.$row['login'], $time, '/' );
+						setcookie ( 'domcms', $row['id'].'|||'.$row['login'], $time, '/' );
 					}
 				}
 			} else {
@@ -77,15 +97,14 @@ class J_User extends base {
 	//Проверяет залогинен ли пользователь
 	function check() {
 		if(!empty($this->id)) return true;
-		else if( !empty ($_COOKIE['j_user']) ) {
-			$arr = explode ( '|||', $_COOKIE['j_user'] );
+		else if( !empty ($_COOKIE['domcms']) ) {
+			$arr = explode ( '|||', $_COOKIE['domcms'] );
 			if ( count ( $arr ) == 2 ) {
 				$row = $this->registry->db->get_data ( "SELECT * FROM users WHERE login = '".$arr[1]."' AND id = '".$arr[0]."'",false );
 				if ( $row ) {
 					if ( !$row['active'] ) {
 						$this->registry->template->error="Пользователь заблокирован!";
 					} else {
-						if(empty($this->lang)) $this->lang = 'ru';
 						return base::extend($this,$row);
 					}
 				} else {
@@ -102,7 +121,22 @@ class J_User extends base {
 		}
 		return false;
 	}
+	
+	function getAccess() {
+		$temp = $this->registry->db->get_data('SELECT g.name, ug.id_groups 
+			FROM users_groups AS ug 
+			RIGHT JOIN groups AS g ON g.id=ug.id_groups 
+			WHERE ug.id_users='.($this->id*1),false);
+		if (!empty($temp['name'])) $this->groups = $temp['name'];
+		$this->access = $this->registry->db->get_data('
+			SELECT g_a.name_table, g_a.name_field, g_a.access_read, g_a.access_write, g_a.access_delete 
+			FROM groups_access AS g_a 
+			WHERE g_a.id_groups='.(!empty($temp['id_groups'])?$temp['id_groups']:1).'
+			ORDER BY g_a.name_table');
+		return true;
+	}
+	
 }
 
-$user = base::j('user','J_User');
+$users = base::j('users','users');
 ?>
