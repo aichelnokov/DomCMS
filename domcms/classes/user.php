@@ -42,13 +42,13 @@ class J_User extends base {
 		setcookie ( 'j_user', '', 0, '/' );
 		unset($_COOKIE['j_user']);
 		session_destroy();
-		redirect("/");
+		base::redirect("/domcms/");
 	}
 	
-	function signup() {
-		$login = getvar ( 'login', '' );
-		$pass =  getvar ( 'password', '' );
-		$mem = getvar ( 'remember', false );
+	function signin() {
+		$login = base::getvar ( 'login', '' );
+		$pass =  base::getvar ( 'password', '' );
+		$mem = base::getvar ( 'remember', false );
 		return !$this->check()?$this->full_signin($login,$pass,$mem):false;
 	}
 	
@@ -58,9 +58,9 @@ class J_User extends base {
 			$row = $db->get_data( "SELECT * FROM users WHERE login = '".$login."' AND password = '".md5($password)."'",false );
 			if ( $row ) {
 				if ( !$row['active'] ) {
-					$this->error = "Пользователь заблокирован!";
+					$this->registry->template->error = "Пользователь заблокирован!";
 				} else {
-					extend($this,$row);
+					base::extend($this,$row);
 					if(empty($this->lang)) $this->lang = 'ru';
 					if ( $remember ) {
 						$time = time() + 60 * 60 * 24 * 30;
@@ -68,7 +68,7 @@ class J_User extends base {
 					}
 				}
 			} else {
-				$this->error = "Введенные данные неверны!";
+				$this->registry->template->error = "Введенные данные неверны!";
 			}
 		}
 		return !empty($this->id);
@@ -80,16 +80,16 @@ class J_User extends base {
 		else if( !empty ($_COOKIE['j_user']) ) {
 			$arr = explode ( '|||', $_COOKIE['j_user'] );
 			if ( count ( $arr ) == 2 ) {
-				$row = $this->registry->db->get_data ( "SELECT * FROM users WHERE user_login = '".$arr[1]."' AND id = '".$arr[0]."'",false );
+				$row = $this->registry->db->get_data ( "SELECT * FROM users WHERE login = '".$arr[1]."' AND id = '".$arr[0]."'",false );
 				if ( $row ) {
-					if ( !$row['user_active'] ) {
-						$this->error="Пользователь заблокирован!";
+					if ( !$row['active'] ) {
+						$this->registry->template->error="Пользователь заблокирован!";
 					} else {
 						if(empty($this->lang)) $this->lang = 'ru';
-						return extend($this,$row);
+						return base::extend($this,$row);
 					}
 				} else {
-					$this->error="Введенные данные неверны!";
+					$this->registry->template->error="Введенные данные неверны!";
 				}
 			}
 		}
@@ -97,8 +97,8 @@ class J_User extends base {
 	}
 	
 	function isValid() {
-		if(isset($this->id) && isset($this->user_active)) {
-			if($this->user_active==1) return true;
+		if(isset($this->id) && isset($this->active)) {
+			if($this->active==1) return true;
 		}
 		return false;
 	}

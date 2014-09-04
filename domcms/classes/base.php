@@ -90,6 +90,17 @@ class base {
 		return substr(md5(uniqid(rand(), true)), 0, rand(15, 20)).'.'.$ext;
 	}
 	
+	function redirect( $url ) {
+		if($url=='') {//Если url пустой, значит просто надо обновить страницу
+			header('Refresh:0;');
+		} else {
+			$server_name = ( !empty($_SERVER['SERVER_NAME']) ) ? $_SERVER['SERVER_NAME'] : getenv('SERVER_NAME');
+			$url = ( !substr($url, 0, 4) == 'http' ) ?  $server_name . $url : $url;
+			header('Location: ' . $url);
+		}
+		exit;
+	}
+	
 	// Returns variable from $_REQUEST array and verify datatype
 	function getvar($var,$default,$coding=true,$cookie=false,$n_index=false) {	
 		if(is_array($var)) {
