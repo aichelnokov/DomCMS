@@ -13,6 +13,7 @@ if (!$users->isValid()) $template->file = 'login.html';
 else $template->file = 'domcms.html';
 
 
+$template->users = $users;
 
 $template->path = '/domcms/templates/';
 $template->render(false,'404.html');
