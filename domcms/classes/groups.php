@@ -19,6 +19,9 @@ class groups extends base {
 		),
 	);
 	
+	function init() {
+		return parent::init();
+	}
 	
 }
 

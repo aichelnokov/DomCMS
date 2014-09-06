@@ -123,16 +123,28 @@ class users extends base {
 	}
 	
 	function getAccess() {
-		$temp = $this->registry->db->get_data('SELECT g.name, ug.id_groups 
-			FROM users_groups AS ug 
-			RIGHT JOIN groups AS g ON g.id=ug.id_groups 
-			WHERE ug.id_users='.($this->id*1),false);
-		if (!empty($temp['name'])) $this->groups = $temp['name'];
-		$this->access = $this->registry->db->get_data('
-			SELECT g_a.name_table, g_a.name_field, g_a.access_read, g_a.access_write, g_a.access_delete 
-			FROM groups_access AS g_a 
-			WHERE g_a.id_groups='.(!empty($temp['id_groups'])?$temp['id_groups']:1).'
-			ORDER BY g_a.name_table');
+		if ($this->isValid())
+			$temp = $this->registry->db->get_data('SELECT g.name, ug.id_groups AS id 
+				FROM users_groups AS ug 
+				RIGHT JOIN groups AS g ON g.id=ug.id_groups 
+				WHERE ug.id_users='.$this->id,false);
+		else
+			$temp = $this->registry->db->get_data('SELECT g.id, g.name FROM groups AS g WHERE g.id=1',false);
+		if (!empty($temp)) {
+			$this->groups = $temp['name'];
+			$this->id_groups = $temp['id'];
+		}
+		$temp = $this->registry->db->get_list('SELECT DISTINCT g_a.name_table FROM groups_access AS g_a WHERE g_a.id_groups='.$this->id_groups,false);
+		$this->access = array();
+		foreach ($temp as $k => $v) {
+			$this->access[$v] = array();
+			$temp1 = $this->registry->db->get_list('SELECT DISTINCT g_a.name_field FROM groups_access AS g_a WHERE g_a.id_groups='.$this->id_groups.' AND g_a.name_table="'.$v.'"',false);
+			foreach ($temp1 as $k1 => $v1) {
+				$this->access[$v][$v1] = $this->registry->db->get_data('SELECT DISTINCT g_a.access_read, g_a.access_write, g_a.access_delete FROM groups_access AS g_a WHERE g_a.id_groups='.$this->id_groups.' AND g_a.name_table="'.$v.'" AND g_a.name_field="'.$v1.'"',false);
+			}
+			unset($temp1);
+		}
+		unset($temp);
 		return true;
 	}
 	

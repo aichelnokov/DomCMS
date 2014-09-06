@@ -46,8 +46,13 @@ class base {
 	// Если существует метод get{name} вызываем его и возвращаем результат
 	// Иначе возвращает false
 	function __get($name) {
-		if(method_exists($this,'get'.$name)) return $this->{'get'.$name}();
+		if(method_exists($this,'get'.$name)) return $this->{'get'.$name}(); 
 		else return false;
+	}
+	
+	// Получение информации об объекте с заданным идентификатором
+	function getObject($id=0) {
+		// Проверка прав доступа
 	}
 	
 	// Static methods
