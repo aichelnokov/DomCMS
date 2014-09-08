@@ -1,18 +1,49 @@
 <html>
 <head>
 	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>DomCMS Login</title>
+	<link href="/domcms/css/bootstrap.min.css" rel="stylesheet">
+	<link href="/domcms/css/bootstrap-theme.min.css" rel="stylesheet">
+	<link href="/domcms/css/style.less" rel="stylesheet/less">
+	<script src="/domcms/js/less-1.7.4.min.js"></script>
+	<script src="http://code.jquery.com/jquery-latest.js"></script>
+	<script src="/domcms/js/bootstrap.min.js"></script>
+	<style type="text/css">
+		body { background-color:silver; }
+		form { margin-bottom:0px; }
+		form label { font-weight:normal; }
+		#forms { width:330px; padding:15px 30px; margin:10% auto auto auto; box-shadow:1px 1px 5px 0px rgba(0,0,0,0.5); }
+		.form-signin input, .form-signin button { margin-bottom:15px; }
+	</style>
 </head>
 <body>
-	{% if error %}<p style="color:red;">{{ error }}</p>{% endif %}
-	<form method="post" action="/domcms/">
-		<input type="text" id="login" name="login" value="" placeholder="Login">
-		<label for="login">* Логин должен содержать только буквы латинского алфавита.</label>
-		<input type="password" id="password" name="password" value="" placeholder="Password">
-		<label for="password">* Пароль должен состоять из букв латинского алфавита разного регистра и цифр от 0 до 9.</label>
-		<input type="checkbox" name="remember" id="remember" value="1">
-		<label for="remember">Автоматически заходить в систему при следующем визите</label>
-		<input type="submit" name="signin" value="Войти">
-	</form>
+	<div class="container">
+		<div id="forms" class="panel panel-default">
+			<form id="singin" class="form-signin" role="form" method="post" action="/domcms/">
+				<h2 class="form-signin-heading">DomCMS</h2>
+				<input type="text" class="form-control" id="login" name="login" value="" placeholder="Логин" required autofocus>
+				<input type="password" class="form-control" id="password" name="password" value="" placeholder="Пароль" required>
+				<label class="checkbox">
+					<input type="checkbox" name="remember" id="remember" value="1">
+					Автоматически заходить в систему при следующем визите
+				</label>
+				<button type="submit" class="btn btn-lg btn-primary btn-block" name="signin" value="true">Войти</button>
+				{% if error %}
+					<div class="alert alert-danger" role="alert">
+						<span class="glyphicon glyphicon-exclamation-sign"></span>
+						<strong>Ошибка!</strong> {{ error }}
+					</div>
+				{% else %}
+					<div class="alert alert-warning" role="alert">
+						<span class="glyphicon glyphicon-info-sign"></span>
+						Логин и пароль должны состоять только из букв латинского алфавита разного регистра и цифр от 0 до 9.
+					</div>
+				{% endif %}
+			</form>
+		
+		</div>
+	</div>
 </body>
 </html>
