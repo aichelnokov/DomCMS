@@ -1,7 +1,21 @@
 // global rules
+body { padding-top:51px; font-size:14px; line-height:16px; }
 form { margin-bottom:0px; }
-
 
 #menu {
 	.navbar-form { color:#eee; }
+}
+#crumbs {
+	border-bottom:1px solid silver; line-height:30px;
+	a {
+		margin-right:10px;
+		span { font-size:80%; line-height:inherit; margin-right:10px; }
+		&:last-child { color:gray;  }
+	}
+}
+#main {
+	position:relative; padding:20px 0px;
+}
+#footer {
+	position:relative; border-top:1px solid silver; text-align:right; font-size:80%; text-transform:uppercase;
 }
