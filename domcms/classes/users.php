@@ -11,24 +11,24 @@ class users extends base {
 	public $error		= '';
 	public $cache 		= 'session';
 	
-	protected $model = array (
+	private $model = array (
 		'users' => array(
-			'id' => array('type'=>'INT(255)','flags'=>'UNSIGNED NOT NULL AUTO_INCREMENT','inner_keys'=>'PRIMARY'),
+			'id' => array('type'=>'INT(255)','default'=>0,'flags'=>'NOT NULL UNSIGNED AUTO_INCREMENT','inner_keys'=>'UNIQUE PRIMARY'),
 			'login' => array('type'=>'VARCHAR(255)','default'=>''),
 			'password' => array('type'=>'VARCHAR(255)','default'=>''),
-			'active' => array('type'=>'INT(1)','default'=>1,'flags'=>'UNSIGNED NOT NULL'),
+			'active' => array('type'=>'INT(1)','default'=>1,'flags'=>'NOT NULL UNSIGNED'),
 			'name' => array('type'=>'VARCHAR(255)','default'=>''),
 			'phone' => array('type'=>'VARCHAR(255)','default'=>''),
 			'mail' => array('type'=>'VARCHAR(255)','default'=>''),
 			'address' => array('type'=>'VARCHAR(255)','default'=>''),
-			'postcode' => array('type'=>'INT(8)','default'=>0,'flags'=>'UNSIGNED NOT NULL'),
-			'sex' => array('type'=>'INT(1)','default'=>1,'flags'=>'UNSIGNED NOT NULL'),
-			'birdthdate' => array('type'=>'INT(255)','default'=>0,'flags'=>'UNSIGNED NOT NULL'),
+			'postcode' => array('type'=>'INT(8)','default'=>0,'flags'=>'NOT NULL UNSIGNED'),
+			'sex' => array('type'=>'INT(1)','default'=>1,'flags'=>'NOT NULL UNSIGNED'),
+			'birdthdate' => array('type'=>'INT(255)','default'=>0,'flags'=>'NOT NULL UNSIGNED'),
 			'about' => array('type'=>'TEXT','default'=>''),
 		),
 		'users_groups' => array(
-			'id_users' => array('type'=>'INT(255)','flags'=>'UNSIGNED','outer_keys'=>'users(id) ON UPDATE CASCADE ON DELETE CASCADE'),
-			'id_groups' => array('type'=>'INT(255)','flags'=>'UNSIGNED','outer_keys'=>'groups(id) ON UPDATE CASCADE ON DELETE SET NULL'),
+			'id_users' => array('type'=>'INT(255)','default'=>0,'flags'=>'UNSIGNED','outer_keys'=>'users(id) ON UPDATE CASCADE ON DELETE CASCADE'),
+			'id_groups' => array('type'=>'INT(255)','default'=>0,'flags'=>'UNSIGNED','outer_keys'=>'groups(id) ON UPDATE CASCADE ON DELETE SET NULL'),
 		),
 	);
 	
@@ -39,6 +39,8 @@ class users extends base {
 	}
 	
 	function init() {
+		global $db;
+		
 		if(empty($_SESSION['OBJECTS'][$this->name])) { //Если сессии пользователя еще нет - добываем данные о нем
 			$this->browser = ( !empty($_SERVER['HTTP_USER_AGENT']) ) ? htmlspecialchars($_SERVER['HTTP_USER_AGENT']) : '';
 			$this->enter_time = time();
@@ -47,6 +49,7 @@ class users extends base {
 			$this->page = ( !empty($_SERVER['PHP_SELF']) ) ? $_SERVER['PHP_SELF'] : getenv('PHP_SELF');
 			if( !$this->page )	$this->page = ( !empty($_SERVER['REQUEST_URI']) ) ? $_SERVER['REQUEST_URI'] : getenv('REQUEST_URI');
 		}
+		
 		if (base::getvar('signout',false)!==false) $this->signout();
 		elseif (base::getvar('signin',false)!==false) { if ($this->signin()) { base::redirect($_SERVER['REQUEST_URI']); } }
 		elseif (base::getvar('signup',false)!==false) $this->signup();
@@ -131,7 +134,7 @@ class users extends base {
 			$this->groups = $temp['name'];
 			$this->id_groups = $temp['id'];
 		}
-		/*$temp = $this->registry->db->get_list('SELECT DISTINCT g_a.name_table FROM groups_access AS g_a WHERE g_a.id_groups='.$this->id_groups,false);
+		$temp = $this->registry->db->get_list('SELECT DISTINCT g_a.name_table FROM groups_access AS g_a WHERE g_a.id_groups='.$this->id_groups,false);
 		$this->access = array();
 		foreach ($temp as $k => $v) {
 			$this->access[$v] = array();
@@ -141,7 +144,7 @@ class users extends base {
 			}
 			unset($temp1);
 		}
-		unset($temp);*/
+		unset($temp);
 		return true;
 	}
 	

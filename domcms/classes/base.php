@@ -14,7 +14,7 @@ class base {
 		$this->registry=registry::get_registry();
 		$this->registry->{$this->name}=null;
 		$this->registry->{$this->name}=&$this;
-		return $this->checkModel();
+		return true;
 	}
 	
 	function init() {
@@ -25,7 +25,7 @@ class base {
 		$this->registry=registry::get_registry();
 		$this->registry->{$this->name}=null;
 		$this->registry->{$this->name}=&$this;
-		return $this->checkModel();
+		return true;
 	}
 	
 	// Если существует метод set{name} вызываем его и передаем ему параметр value
@@ -53,20 +53,6 @@ class base {
 	// Получение информации об объекте с заданным идентификатором
 	function getObject($id=0) {
 		// Проверка прав доступа
-	}
-	
-	// Проверяет в базе корректность таблиц моделей объекта (все модули)
-	function checkModel() {
-		if (empty($this->model)) return true;
-		foreach ($this->model as $k => $v) {
-			if (!$this->registry->db->existsTable($k))
-				$this->registry->db->createTable($k,$v);
-			/* else { 
-				foreach ($v as $k1 => $v1) 
-					if (!$this->registry->db->existsField($k,$k1,$v1))
-			}*/
-		}
-		return true;
 	}
 	
 	// Static methods
@@ -120,7 +106,7 @@ class base {
 	}
 	
 	// Returns variable from $_REQUEST array and verify datatype
-	static function getvar($var,$default,$coding=true,$cookie=false,$n_index=false) {	
+	function getvar($var,$default,$coding=true,$cookie=false,$n_index=false) {	
 		if(is_array($var)) {
 			$result = array();
 			foreach($var as $k=>$v) {
