@@ -10,7 +10,19 @@ define('ROOT_DIR',realpath(__DIR__.'\\..').'\\');
 require_once(ROOT_DIR.'domcms\loader.php');
 
 if (!$users->isValid()) $template->file = 'login.html';
-else $template->file = 'domcms.html';
+else {
+	// get global vars
+	$module = base::getvar('module','sections');
+	$mode = base::getvar('mode',$module);
+	$action = base::getvar('action','view');
+	// include class
+	if (file_exists(ROOT_DIR.'domcms/classes/'.$module.'.php')) {
+		require_once(ROOT_DIR.'domcms/classes/'.$module.'.php');
+		$admin = base::j($module,$module);
+		$admin->{$mode.'_'.$action}();
+	}
+	if (empty($template->file)) $template->file = 'domcms.html';
+}
 
 
 $template->users = $users;

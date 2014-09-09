@@ -120,7 +120,7 @@ class db_mysqli extends base {
 			}
 			if(!empty(DEBUG))
 				if (DEBUG) 
-					debug::addDebug($query,microtime(true)-$t,'mysql',array(200,500,2000));
+					$this->registry->debug->addDebug($query,microtime(true)-$t,'mysql',array(200,500,2000));
 			return ( $this->query_result ) ? $this->query_result : false;
 		}
 		return false;
@@ -238,10 +238,7 @@ class db_mysqli extends base {
 		return $this->insert($table,$res);
 	}
 	
-	/**
-	* Преобразование массива в строку
-	* и выполнение запроса
-	*/
+	//Преобразование массива в строку и выполнение запроса
 	function build_array($query, $data = false)
 	{
 		if( !is_array($data)) {
@@ -263,10 +260,7 @@ class db_mysqli extends base {
 		return $query;
 	}
 
-	/**
-	* Сверяем тим переменной и её значение,
-	* строки также экранируем
-	*/
+	//Сверяем тим переменной и её значение, строки также экранируем
 	function check_value($value)
 	{
 		if($value===0) return $value;
@@ -286,33 +280,24 @@ class db_mysqli extends base {
 			return $value;
 	}
 
-	/**
-	* Затронутые поля
-	*/
+	// Затронутые поля
 	function affected_rows()
 	{
 		return ( $this->connect_id ) ? mysqli_affected_rows($this->connect_id) : false;
 	}
 
-	/**
-	* ID последнего добавленного элемента
-	*/
+	//ID последнего добавленного элемента
 	function insert_id() {
 		return ( $this->connect_id ) ? mysqli_insert_id($this->connect_id) : false;
 	}
 
-	/**
-	* Экранируем символы
-	*/
+	//Экранируем символы
 	function escape($message) {
 		return mysqli_real_escape_string( $message);
 	}
 
-	/**
-	* SQL ошибки передаём нашему обработчику
-	*/
-	function error($sql = '')
-	{
+	//SQL ошибки передаём нашему обработчику
+	function error($sql = '') {
 		global $custom_error_style, $user;
 
 		$code = ( $this->connect_id ) ? mysqli_errno($this->connect_id) : mysqli_connect_errno();
@@ -323,23 +308,44 @@ class db_mysqli extends base {
 		$message .= ( $sql ) ? '<br /><b>SQL запрос:</b> ' . htmlspecialchars($sql) . '<br />' : '';
 		$message .= '</blockquote>';
 
-		/**
-		* Стандартные настройки сервера не позволяют выводить
-		* сообщение об ошибке длиной более 1024 символов
-		*/
-		if( strlen($message) >= 1024 )
-		{
+		//Стандартные настройки сервера не позволяют выводить сообщение об ошибке длиной более 1024 символов
+		if( strlen($message) >= 1024 ) {
 			global $message_long_error;
-
 			$message_long_error = $message;
 			print($message);
 			trigger_error(false, E_USER_ERROR);
 		}
-
 		trigger_error($message, E_USER_ERROR);
-
 		return $result;
 	}
+	
+	function existsTable($table='') {
+		return ($table==''||mysqli_num_rows(mysqli_query($this->connect_id,"SHOW TABLES LIKE '".$table."'"))==1)?true:false;
+	}
+	
+	function existsField($table,$field,$options) {
+		
+	}
+	
+	function createTable($table,$fields) {
+		$sql = "CREATE TABLE IF NOT EXISTS `$table` (";
+		$create_definition = '';
+		foreach ($fields as $k => $v) $create_definition .= $this->createTableField($k,$v); 
+		$sql .= substr($create_definition,2).") ENGINE=InnoDB DEFAULT CHARSET=utf8";
+		unset($create_definition);
+		return $this->query($sql);
+	}
+	
+	function createTableField($field='',$options=array()) {
+		if ($field=='') return '';
+		$field_definition = ", `$field` ".$options['type'];
+		if (!empty($options['flags'])) $field_definition .= " ".$options['flags'];
+		if (isset($options['default'])) $field_definition .= " DEFAULT '".$options['default']."'";
+		if (!empty($options['inner_keys'])) if (preg_match('/PRIMARY/',$options['inner_keys'])>0) $field_definition .= ", PRIMARY KEY (`$field`)";
+		if (!empty($options['outer_keys'])) $field_definition .= ", FOREIGN KEY ($field	) REFERENCES ".$options['outer_keys'];
+		return $field_definition;
+	}
+	
 }
 
 $db = base::j('db','db_mysqli');
