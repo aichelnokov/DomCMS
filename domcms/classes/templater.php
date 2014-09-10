@@ -43,6 +43,4 @@ class J_Templater extends base {
 	
 }
 
-$template = base::j('template','J_Templater');
-
 ?>

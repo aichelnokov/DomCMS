@@ -227,8 +227,10 @@ class db_mysqli extends base {
 			$values=array(implode(',',$this->check_value($data)));
 		}
 		if($this->query('INSERT INTO '.$table.'('.implode(',',$keys).') VALUES ('.implode('),(',$values).')')===false) return false;
-		if(is_numeric($keys[0])) return $this->insert_id();
-		return true;
+		if(!is_numeric($keys[0]))
+			return $this->insert_id();
+		else
+			return true;
 	}
 	
 	function insert_list($table,$array,$field_name) {
@@ -344,7 +346,5 @@ class db_mysqli extends base {
 	}
 	
 }
-
-$db = base::j('db','db_mysqli');
 
 ?>

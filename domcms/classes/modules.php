@@ -35,18 +35,27 @@ class modules extends base {
 	function checkModule($class,$table,$fields) {
 		if ($id = $this->existsModule($class,$table)) {
 		} else {
-			$this->registry->db->insert('modules',array('class'=>$class,'tbl'=>$table,'title'=>$table));
-			$id = $this->registry->db->insert_id();
+			$id = $this->registry->db->insert('modules',array('class'=>$class,'tbl'=>$table,'title'=>$table));
 			$this->fillModuleFields($id,$fields);
 		}
 	}
 	
 	function fillModuleFields($id,$fields) {
-		$fill_array = array();
+		$access_array = array();
+		$groups_list = groups::getGroupsList();
 		foreach ($fields as $k => $v) {
-			$fill_array[] = array('id_modules'=>$id,'name'=>$k,'title'=>$k);
+			$id_modules_fields = $this->registry->db->insert('modules_fields',array('id_modules'=>$id,'name'=>$k,'title'=>$k));
+			foreach ($groups_list as $group)
+				$access_array[] = array(
+					'id_groups' => $group,
+					'id_modules_fields' => $id_modules_fields,
+					'access_read' => 1,
+					'access_write' => 0,
+					'access_delete' => 0,
+				);
+			unset($id_modules_fields);
 		}
-		return $this->registry->db->insert('modules_fields',$fill_array);
+		return $this->registry->db->insert('groups_access',$access_array);
 	}
 	
 	function existsModule($class,$table) {
@@ -55,5 +64,4 @@ class modules extends base {
 	
 }
 
-$modules = base::j('modules','modules');
 ?>

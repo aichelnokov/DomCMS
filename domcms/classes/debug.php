@@ -50,6 +50,4 @@ class debug extends base {
 	
 }
 
-$debug = base::j('debug','debug');
-
 ?>

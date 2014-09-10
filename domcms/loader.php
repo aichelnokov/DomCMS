@@ -12,14 +12,20 @@ $config = array();
 
 require_once(__DIR__.'\classes\registry.php');
 require_once(__DIR__.'\classes\base.php');
-// clases with create objects
-// Example:
-// global $objects
+
 require_once(__DIR__.'\classes\debug.php');
 require_once(__DIR__.'\classes\templater.php');
 require_once(__DIR__.'\classes\db_mysqli.php');
 require_once(__DIR__.'\classes\modules.php');
 require_once(__DIR__.'\classes\users.php');
 require_once(__DIR__.'\classes\groups.php');
+
+$debug = base::j('debug','debug');
+$template = base::j('template','J_Templater');
+$db = base::j('db','db_mysqli');
+
+$modules = base::j('modules','modules');
+$users = base::j('users','users');
+$groups = base::j('groups','groups');
 
 ?>

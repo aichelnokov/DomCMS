@@ -147,5 +147,4 @@ class users extends base {
 	
 }
 
-$users = base::j('users','users');
 ?>
