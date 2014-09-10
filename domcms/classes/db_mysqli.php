@@ -239,11 +239,8 @@ class db_mysqli extends base {
 	}
 	
 	//Преобразование массива в строку и выполнение запроса
-	function build_array($query, $data = false)
-	{
-		if( !is_array($data)) {
-			return false;
-		}
+	function build_array($query, $data = false) {
+		if( !is_array($data)) return false;
 		$fields = $values = array();
 		if( $query == 'INSERT' ) {
 			foreach( $data as $key => $value ) {
@@ -293,7 +290,7 @@ class db_mysqli extends base {
 
 	//Экранируем символы
 	function escape($message) {
-		return mysqli_real_escape_string( $message);
+		return mysqli_real_escape_string($this->connect_id, $message);
 	}
 
 	//SQL ошибки передаём нашему обработчику
@@ -342,7 +339,7 @@ class db_mysqli extends base {
 		if (!empty($options['flags'])) $field_definition .= " ".$options['flags'];
 		if (isset($options['default'])) $field_definition .= " DEFAULT '".$options['default']."'";
 		if (!empty($options['inner_keys'])) if (preg_match('/PRIMARY/',$options['inner_keys'])>0) $field_definition .= ", PRIMARY KEY (`$field`)";
-		if (!empty($options['outer_keys'])) $field_definition .= ", FOREIGN KEY ($field	) REFERENCES ".$options['outer_keys'];
+		if (!empty($options['outer_keys'])) $field_definition .= ", FOREIGN KEY ($field) REFERENCES ".$options['outer_keys'];
 		return $field_definition;
 	}
 	

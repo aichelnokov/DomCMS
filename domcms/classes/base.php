@@ -65,6 +65,7 @@ class base {
 				foreach ($v as $k1 => $v1) 
 					if (!$this->registry->db->existsField($k,$k1,$v1))
 			}*/
+			$this->registry->modules->checkModule($this->name,$k,$v);
 		}
 		return true;
 	}
