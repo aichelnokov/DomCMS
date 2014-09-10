@@ -121,7 +121,8 @@ class users extends base {
 	
 	function getAccess() {
 		if ($this->isValid())
-			$temp = $this->registry->db->get_data('SELECT g.name, ug.id_groups AS id 
+			$temp = $this->registry->db->get_data('
+				SELECT g.name, ug.id_groups AS id 
 				FROM users_groups AS ug 
 				RIGHT JOIN groups AS g ON g.id=ug.id_groups 
 				WHERE ug.id_users='.$this->id,false);
@@ -131,17 +132,17 @@ class users extends base {
 			$this->groups = $temp['name'];
 			$this->id_groups = $temp['id'];
 		}
-		/*$temp = $this->registry->db->get_list('SELECT DISTINCT g_a.name_table FROM groups_access AS g_a WHERE g_a.id_groups='.$this->id_groups,false);
 		$this->access = array();
+		$temp = $this->registry->db->get_data("SELECT m.id, m.tbl FROM modules AS m",false,'tbl');
 		foreach ($temp as $k => $v) {
-			$this->access[$v] = array();
-			$temp1 = $this->registry->db->get_list('SELECT DISTINCT g_a.name_field FROM groups_access AS g_a WHERE g_a.id_groups='.$this->id_groups.' AND g_a.name_table="'.$v.'"',false);
-			foreach ($temp1 as $k1 => $v1) {
-				$this->access[$v][$v1] = $this->registry->db->get_data('SELECT DISTINCT g_a.access_read, g_a.access_write, g_a.access_delete FROM groups_access AS g_a WHERE g_a.id_groups='.$this->id_groups.' AND g_a.name_table="'.$v.'" AND g_a.name_field="'.$v1.'"',false);
-			}
-			unset($temp1);
+			$this->access[$k] = $this->registry->db->get_data("
+				SELECT m_f.name, g_a.access_read, g_a.access_write, g_a.access_delete 
+				FROM modules_fields AS m_f 
+				RIGHT JOIN groups_access AS g_a 
+					ON g_a.id_modules_fields=m_f.id AND g_a.id_groups=$this->id_groups 
+				WHERE m_f.id_modules=".$v['id'],true,'name');
 		}
-		unset($temp);*/
+		//print_r($this->access);
 		return true;
 	}
 	

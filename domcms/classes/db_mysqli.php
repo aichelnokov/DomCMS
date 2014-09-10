@@ -157,7 +157,9 @@ class db_mysqli extends base {
 			$result = array();
 			while( $row = $this->fetchrow($query_id) ) {
 				if( $field !== false ) {
-					$result[$row[$field]] = $row;
+					$temp_name = $row[$field];
+					unset($row[$field]);
+					$result[$temp_name] = $row;
 				} else {
 					$result[] = $row;
 				}

@@ -18,10 +18,6 @@ class groups extends base {
 		),
 	);
 	
-	function init() {
-		return parent::init();
-	}
-	
 	static function getGroupsList() {
 		global $db;
 		return $db->get_list('SELECT id FROM groups ORDER BY id');
