@@ -17,7 +17,7 @@ class users extends base {
 			'login' => array('type'=>'VARCHAR(255)','default'=>''),
 			'password' => array('type'=>'VARCHAR(255)','default'=>''),
 			'active' => array('type'=>'INT(1)','default'=>1,'flags'=>'UNSIGNED NOT NULL'),
-			'name' => array('type'=>'VARCHAR(255)','default'=>''),
+			'firstname' => array('type'=>'VARCHAR(255)','default'=>''),
 			'phone' => array('type'=>'VARCHAR(255)','default'=>''),
 			'mail' => array('type'=>'VARCHAR(255)','default'=>''),
 			'address' => array('type'=>'VARCHAR(255)','default'=>''),
@@ -66,8 +66,8 @@ class users extends base {
 	function signin() {
 		$login = base::getvar ( 'login', '' );
 		$pass =  base::getvar ( 'password', '' );
-		$mem = base::getvar ( 'remember', false );
-		return $this->full_signin($login,$pass,$mem);
+		$remember = base::getvar ( 'remember', false );
+		return $this->full_signin($login,$pass,$remember);
 	}
 	
 	function full_signin($login,$password,$remember) {
