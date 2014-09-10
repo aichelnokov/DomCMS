@@ -11,7 +11,7 @@ class debug extends base {
 	
 	function init() {
 		$this->start_execution_time = microtime(true);
-		$_SESSION['debug'] = base::getvar('debug',false);
+		$_SESSION['debug'] = base::getvar('debug',(!empty($_SESSION['debug'])?$_SESSION['debug']:false));
 		define('DEBUG',$_SESSION['debug']);
 		return parent::init();
 	}
