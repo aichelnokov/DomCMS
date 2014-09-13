@@ -19,12 +19,12 @@ else {
 	if (file_exists(ROOT_DIR.'domcms/classes/'.$module.'.php')) {
 		require_once(ROOT_DIR.'domcms/classes/'.$module.'.php');
 		$admin = base::j($module,$module);
-		$admin->{$mode.'_'.$action}();
+		$admin->domcms($module,$mode,$action);
 	}
 	if (empty($template->file)) $template->file = 'domcms.html';
 }
 
-
+$template->domcms = $admin;
 $template->users = $users;
 
 $template->path = '/domcms/templates/';

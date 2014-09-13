@@ -12,6 +12,7 @@
 	<script src="http://code.jquery.com/jquery-latest.js"></script>
 	<script src="/domcms/js/bootstrap.min.js"></script>
 	<script src="/domcms/js/scripts.js"></script>
+	{% block head %}{% endblock %}
 </head>
 <body role="document">
 	<div id="menu" class="navbar navbar-inverse navbar-fixed-top">
@@ -48,15 +49,15 @@
 			</div>
 		</div>
 	</div>
-	<div id="crumbs" role="crumbs">
-		<div class="container">
-			<a href="#"><span class="glyphicon glyphicon-chevron-right"></span>DomCMS</a>
-			<a href="#"><span class="glyphicon glyphicon-chevron-right"></span>Документы</a>		
-		</div>
+	<div class="container">
+		<ol class="breadcrumb">
+			<li><a href="#">DomCMS</a></li>
+			<li><a href="#">Документы</a></li>
+		</ol>
 	</div>
 	<div id="main" class="container" role="main">
 		<div class="row">
-			
+			{% block content %}{% endblock %}
 		</div>
 	</div>
 	<div id="footer">

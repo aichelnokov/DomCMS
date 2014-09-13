@@ -5,16 +5,23 @@ form { margin-bottom:0px; }
 #menu {
 	.navbar-form { color:#eee; }
 }
-#crumbs {
-	border-bottom:1px solid silver; line-height:30px;
-	a {
-		margin-right:10px;
-		span { font-size:80%; line-height:inherit; margin-right:10px; }
-		&:last-child { color:gray;  }
-	}
+.breadcrumb {
+	margin-top:20px; 
 }
 #main {
-	position:relative; padding:20px 0px;
+	position:relative;
+	.nested_list {
+		.nested_li {
+			height:28px; line-height:28px;
+			.btn-toolbar { float:right; }
+		}
+		&.sortable {
+			li {
+				cursor:move;
+				&:hover { background-color:rgba(0,0,0,0.02); }
+			}
+		}
+	}
 }
 #footer {
 	position:relative; border-top:1px solid silver; text-align:right; font-size:80%; text-transform:uppercase;

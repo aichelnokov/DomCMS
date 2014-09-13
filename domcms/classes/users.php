@@ -142,8 +142,17 @@ class users extends base {
 					ON g_a.id_modules_fields=m_f.id AND g_a.id_groups=$this->id_groups 
 				WHERE m_f.id_modules=".$v['id'],true,'name');
 		}
-		//print_r($this->access);
 		return true;
+	}
+	
+	// Проверяет, можно ли совершить действие с выбранными полями и возвращает список полей
+	function checkAccess($component='',$model=array(),$access='access_read') { 
+		if (empty($component)) return false;
+		if (empty($model)) return false;
+		$model = array_merge_recursive($model,$this->access[$component]);
+		foreach ($model as $k => $v)
+			if ($v[$access]!=1) unset($model[$k]);
+		return (!empty($model))?$model:false;
 	}
 	
 }

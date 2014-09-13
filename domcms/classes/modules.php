@@ -62,6 +62,20 @@ class modules extends base {
 		return (0<$id=$this->registry->db->get_single("SELECT id FROM modules WHERE class='$class' AND tbl='$table'"))?$id:false;
 	}
 	
+	function allow(&$object) {
+		if (method_exists($object,$object->mode.'_'.$object->action)) $return = $object->mode.'_'.$object->action;
+		else if (method_exists($object,$object->action)) $return = $object->action;
+		else if (method_exists($object,$object->mode)) $return = $object->mode;
+		else return false;
+		return $object->{$return}();
+	}
+	
+	function modules_view() {
+		$this->pagination = false;
+		$this->sortable = true;
+		return parent::view();
+	}
+	
 }
 
 ?>

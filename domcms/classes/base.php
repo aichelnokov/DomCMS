@@ -51,8 +51,18 @@ class base {
 	}
 	
 	// Получение информации об объекте с заданным идентификатором
-	function getObject($id=0) {
+	function getObject($params=array()) {
 		// Проверка прав доступа
+		if (empty($params)) return false;
+	}
+	
+	function getObjects($component='',$params=array()) {
+		if (empty($component)) return false;
+		if ($model=$this->registry->users->checkAccess($this->mode,$this->model[$component],'access_read')) {
+			return true;
+		} else {
+		
+		}
 	}
 	
 	// Проверяет в базе корректность таблиц моделей объекта (все модули)
@@ -68,6 +78,24 @@ class base {
 			$this->registry->modules->checkModule($this->name,$k,$v);
 		}
 		return true;
+	}
+	
+	function domcms($module,$mode,$action) {
+		$this->module = $module;
+		$this->mode = $mode;
+		$this->action = $action;
+		if ($id=base::getvar('id',false)) { $this->id = $id; }
+		if ($id_parent=base::getvar('id_parent',false)) { $this->id_parent = $id_parent; }
+		$this->page = base::getvar('page',1);
+		$this->count_on_page = 20;
+		$this->data = array();
+		unset($id,$id_parent);
+		return $this->registry->modules->allow($this);
+	}
+	
+	function view() {
+		$this->data['list'] = $this->getObjects($this->mode);
+		if (empty($this->registry->template->file)) $this->registry->template->file = 'view.html';
 	}
 	
 	// Static methods
