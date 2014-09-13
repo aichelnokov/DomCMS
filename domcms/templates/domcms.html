@@ -64,14 +64,16 @@
 		<div class="container">
 			DomCMS&nbsp;&nbsp;&nbsp;&dash;&nbsp;&nbsp;&nbsp;2014 &copy; Alexey Chelnokov
 		</div>
-		<div class="container">
-			{% for i, tabs in debug %}
-				<b>{{ i }}</b><br>
-				{% for a in tabs %}
-					[{{ a.data.time }}] {{ a.data.text }}<br>
-				{% endfor %}
-			{% endfor %}
-		</div>
 	</div>
+	{% if debug is defined %}
+	<div class="container">
+		{% for i, tabs in debug %}
+			<b>{{ i }}</b><br>
+			{% for a in tabs %}
+				<span class="label label-default">{{ a.data.time }}</span> {{ a.data.text }}<br>
+			{% endfor %}
+		{% endfor %}
+	</div>
+	{% endif %}
 </body>
 </html>

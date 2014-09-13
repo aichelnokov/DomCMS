@@ -2,26 +2,11 @@
 
 {% block content %}
 <div class="col-md-12">
-	<ul class="list-group nested_list{% if domcms.sortable==1 %} sortable{% endif %}">
-		<li class="list-group-item">
-			<div class="nested_li">
-				<span class="label label-default">alias</span>
-				<a href="#">section</a>
-				<div class="btn-toolbar">
-					<div class="btn-group">
-						<a href="#" class="btn btn-default"><span class="glyphicon glyphicon-picture"></span></a>
-					</div>
-					<div class="btn-group">
-						<a href="#" class="btn btn-default active"><span class="glyphicon glyphicon-eye-open"></span></a>
-						<a href="#" class="btn btn-default"><span class="glyphicon glyphicon-eye-close"></span></a>
-					</div>
-					<div class="btn-group">
-						<a href="#" class="btn btn-default"><span class="glyphicon glyphicon-pencil"></span></a>
-						<a href="#" class="btn btn-default"><span class="glyphicon glyphicon-trash"></span></a>
-					</div>
-				</div>
-			</div>
-		</li>
-	</ul>
+	{% if domcms.data.list|length>0 %}
+		{% import "macros.html" as macros %}
+		{{ macros.nested_list(domcms.data.list,domcms,users) }}
+	{% else %}
+		<div class="alert alert-warning" role="alert">Пусто</div>
+	{% endif %}
 </div>
 {% endblock %}

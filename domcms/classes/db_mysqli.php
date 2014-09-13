@@ -65,9 +65,7 @@ class db_mysqli extends base {
 	}
 	//есть строки в результате запроса
 	function is_result ( $query_id = false ) {
-		if( $query_id === false ) {
-			$query_id = $this->query_result;
-		}
+		if( $query_id === false ) $query_id = $this->query_result;
 		return ( $query_id !== false ) ? mysqli_num_rows ($query_id) : false;
 	}
 
@@ -99,25 +97,16 @@ class db_mysqli extends base {
 		return $result;
 	}
 	
-	/**
-	* Выполнение запроса к БД
-	*/
-	function query( $query = '', $error_mode = 1 )
-	{
+	function query( $query = '', $error_mode = 1 ) {
 		if($this->connect_id!==false) {
-			$t=microtime(true);
-			if( $query )
-			{
+			$t = microtime(true);
+			if($query) {
 				$this->query_result = false;
 				$this->total_queries++;
-				if( $this->query_result === false ) {
-					if( ( $this->query_result = mysqli_query($this->connect_id, $query) ) === false && $error_mode ) {
+				if( $this->query_result === false ) 
+					if( ( $this->query_result = mysqli_query($this->connect_id, $query) ) === false && $error_mode )
 						$this->error($query);
-					}
-				}
-			} else {
-				return false;
-			}
+			} else return false;
 			if(!empty(DEBUG))
 				if (DEBUG) 
 					$this->registry->debug->addDebug($query,microtime(true)-$t,'mysql',array(200,500,2000));
@@ -130,18 +119,13 @@ class db_mysqli extends base {
 		return mysqli_error ();
 	}
 
-	/**
-	* Выборка
-	*/
-	function fetchrow($query_id = false)
-	{
-		if( $query_id === false ) {
-			$query_id = $this->query_result;
-		}
+	//Выборка
+	function fetchrow($query_id = false) {
+		if( $query_id === false ) $query_id = $this->query_result;
 		return ( $query_id !== false ) ? mysqli_fetch_assoc($query_id) : false;
 	}
-	function getrow($query_id = false)
-	{
+	
+	function getrow($query_id = false) {
 		return fetchrow($query_id);
 	}
 
@@ -150,8 +134,7 @@ class db_mysqli extends base {
 	*
 	* @param string $field Поле, по которому создавать массив
 	*/
-	function fetchall($query_id = false, $field = false)
-	{
+	function fetchall($query_id = false, $field = false) {
 		if( empty($query_id) ) $query_id = $this->query_result;
 		if( !empty($query_id) ) {
 			$result = array();
@@ -160,9 +143,7 @@ class db_mysqli extends base {
 					$temp_name = $row[$field];
 					unset($row[$field]);
 					$result[$temp_name] = $row;
-				} else {
-					$result[] = $row;
-				}
+				} else $result[] = $row;
 			}
 			$this->freeresult($query_id);
 			return $result;
@@ -170,8 +151,7 @@ class db_mysqli extends base {
 		return false;
 	}
 	
-	function fetchlist($query_id=false, $fv=false, $fk=false)
-	{
+	function fetchlist($query_id=false, $fv=false, $fk=false) {
 		if( $query_id === false ) $query_id = $this->query_result;
 		if( $query_id !== false ) {
 			$result = array();
@@ -185,16 +165,9 @@ class db_mysqli extends base {
 		return false;
 	}
 
-	/**
-	* Освобождение памяти
-	*/
-	function freeresult($query_id = false)
-	{
-		if( $query_id === false )
-		{
-			$query_id = $this->query_result;
-		}
-
+	//Освобождение памяти
+	function freeresult($query_id = false) {
+		if( $query_id === false ) $query_id = $this->query_result;
 		return mysqli_free_result($query_id);
 	}
 	
@@ -242,9 +215,9 @@ class db_mysqli extends base {
 		return $this->insert($table,$res);
 	}
 	
-	//Преобразование массива в строку и выполнение запроса
-	function build_array($query, $data = false) {
-		if( !is_array($data)) return false;
+	//Преобразование массива в строку
+	function build_array($query,$data=false) {
+		if( !is_array($data) or empty($data)) return false;
 		$fields = $values = array();
 		if( $query == 'INSERT' ) {
 			foreach( $data as $key => $value ) {
@@ -254,7 +227,16 @@ class db_mysqli extends base {
 			$query = ' (' . implode(', ', $fields) . ') VALUES (' . implode(', ', $values) . ')';
 		} elseif( $query == 'SELECT' || $query == 'UPDATE' ) {
 			foreach( $data as $key => $value ) {
-				$values[] = $key . ' = ' . $this->check_value($value);
+				if (preg_match('/>/',$value)>0)
+					$values[] = $key . '>' . intval(strtr($value,array('>'=>'')));
+				elseif (preg_match('/</',$value)>0)
+					$values[] = $key . '<' . intval(strtr($value,array('<'=>'')));
+				elseif (preg_match('/between/',$value)>0)
+					$values[] = $key.' '.$value;
+				elseif (preg_match('/!=/',$value)>0)
+					$values[] = $key . '!=' . $this->check_value(strtr($value,array('!='=>'')));
+				else
+					$values[] = $key . '=' . $this->check_value($value);
 			}
 			$query = implode( ( $query == 'UPDATE' ) ? ', ' : ' AND ', $values);
 		}
@@ -262,8 +244,7 @@ class db_mysqli extends base {
 	}
 
 	//Сверяем тим переменной и её значение, строки также экранируем
-	function check_value($value)
-	{
+	function check_value($value) {
 		if($value===0) return $value;
 		if( $value===null || $value=='NULL' ) {
 			return 'NULL';

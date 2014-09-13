@@ -7,7 +7,7 @@ class groups extends base {
 	protected $model = array (
 		'groups' => array(
 			'id' => array('type'=>'INT(255)','flags'=>'UNSIGNED NOT NULL AUTO_INCREMENT','inner_keys'=>'PRIMARY'),
-			'name' => array('type'=>'VARCHAR(255)','default'=>''),
+			'title' => array('type'=>'VARCHAR(255)','default'=>''),
 		),
 		'groups_access' => array(
 			'id_groups' => array('type'=>'INT(255)','flags'=>'UNSIGNED','outer_keys'=>'groups(id) ON UPDATE CASCADE ON DELETE CASCADE'),

@@ -122,14 +122,14 @@ class users extends base {
 	function getAccess() {
 		if ($this->isValid())
 			$temp = $this->registry->db->get_data('
-				SELECT g.name, ug.id_groups AS id 
+				SELECT g.title, ug.id_groups AS id 
 				FROM users_groups AS ug 
 				RIGHT JOIN groups AS g ON g.id=ug.id_groups 
 				WHERE ug.id_users='.$this->id,false);
 		else
-			$temp = $this->registry->db->get_data('SELECT g.id, g.name FROM groups AS g WHERE g.id=1',false);
+			$temp = $this->registry->db->get_data('SELECT g.id, g.title FROM groups AS g WHERE g.id=1',false);
 		if (!empty($temp)) {
-			$this->groups = $temp['name'];
+			$this->groups = $temp['title'];
 			$this->id_groups = $temp['id'];
 		}
 		$this->access = array();

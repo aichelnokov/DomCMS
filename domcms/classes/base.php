@@ -56,10 +56,15 @@ class base {
 		if (empty($params)) return false;
 	}
 	
-	function getObjects($component='',$params=array()) {
+	function getObjects($component='',$params=array(),$order='') {
 		if (empty($component)) return false;
 		if ($model=$this->registry->users->checkAccess($this->mode,$this->model[$component],'access_read')) {
-			return true;
+			//return $this->registry->db->get_data(,true,key($model));
+			$q = '';
+			$q .= 'SELECT '.implode(', ',array_keys($model)).' FROM '.$this->mode;
+			if ($w=$this->registry->db->build_array('SELECT',$params)) $q .= ' WHERE '.$w;
+			if ($order!='') $q .= ' ORDER BY '.$order;
+			return $this->registry->db->get_data($q);
 		} else {
 		
 		}
@@ -89,12 +94,17 @@ class base {
 		$this->page = base::getvar('page',1);
 		$this->count_on_page = 20;
 		$this->data = array();
+		$this->url = array(
+			'photos' => '/domcms/?module='.$this->module.'&mode='.$this->name.'_photos&action=view&id_parent=%ID_PARENT%',
+			'edit' => '/domcms/?module='.$this->module.'&mode='.$this->mode.'&action=edit&id=%ID%',
+			'delete' => '/domcms/?module='.$this->module.'&mode='.$this->mode.'&action=delete&id=%ID%',
+		);
 		unset($id,$id_parent);
 		return $this->registry->modules->allow($this);
 	}
 	
 	function view() {
-		$this->data['list'] = $this->getObjects($this->mode);
+		$this->data['list'] = $this->getObjects($this->mode,array(),'id');
 		if (empty($this->registry->template->file)) $this->registry->template->file = 'view.html';
 	}
 	

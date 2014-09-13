@@ -12,7 +12,7 @@ require_once(ROOT_DIR.'domcms\loader.php');
 if (!$users->isValid()) $template->file = 'login.html';
 else {
 	// get global vars
-	$module = base::getvar('module','sections');
+	$module = base::getvar('module','modules');
 	$mode = base::getvar('mode',$module);
 	$action = base::getvar('action','view');
 	// include class
@@ -22,9 +22,8 @@ else {
 		$admin->domcms($module,$mode,$action);
 	}
 	if (empty($template->file)) $template->file = 'domcms.html';
+	$template->domcms = $admin;
 }
-
-$template->domcms = $admin;
 $template->users = $users;
 
 $template->path = '/domcms/templates/';
