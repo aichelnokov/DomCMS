@@ -99,18 +99,26 @@ class base {
 			'edit' => '/domcms/?module='.$this->module.'&mode='.$this->mode.'&action=edit&id=%ID%',
 			'delete' => '/domcms/?module='.$this->module.'&mode='.$this->mode.'&action=delete&id=%ID%',
 		);
+		$this->addCrumb('DomCMS','/domcms/');
 		unset($id,$id_parent);
 		return $this->registry->modules->allow($this);
 	}
 	
 	function view() {
+		$this->addCrumb('Список элементов');
 		$this->data['list'] = $this->getObjects($this->mode,array(),'id');
 		if (empty($this->registry->template->file)) $this->registry->template->file = 'view.html';
 	}
 	
+	function addCrumb($title='',$url='') {
+		if (empty($this->crumbs)) $this->crumbs = array();
+		if (empty($title)) return false;
+		$this->crumbs[] = array('title'=>$title,'url'=>$url);
+		return true;
+	}
+	
 	// Static methods
 	
-	// Extends object
 	static function extend(&$object,$data) {
 		foreach($data as $k=>$v) $object->{$k}=$v;
 	}

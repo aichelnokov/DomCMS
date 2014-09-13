@@ -51,8 +51,10 @@
 	</div>
 	<div class="container">
 		<ol class="breadcrumb">
-			<li><a href="#">DomCMS</a></li>
-			<li><a href="#">Документы</a></li>
+			{% for crumb in domcms.crumbs %}
+			<li>{% if crumb.url!='' %}<a href="{{ crumb.url }}">{{ crumb.title }}</a>
+			{% else %}{{ crumb.title }}{% endif %}</li>
+			{% endfor %}
 		</ol>
 	</div>
 	<div id="main" class="container" role="main">

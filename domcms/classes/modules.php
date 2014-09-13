@@ -63,6 +63,7 @@ class modules extends base {
 	}
 	
 	function allow(&$object) {
+		$object->addCrumb($this->registry->db->get_single('SELECT DISTINCT title FROM modules WHERE class="'.$object->name.'" LIMIT 1'),'/domcms/?module='.$object->name.'&mode='.$object->mode.'&action='.$object->action);
 		if (method_exists($object,$object->mode.'_'.$object->action)) $return = $object->mode.'_'.$object->action;
 		else if (method_exists($object,$object->action)) $return = $object->action;
 		else if (method_exists($object,$object->mode)) $return = $object->mode;
@@ -72,7 +73,7 @@ class modules extends base {
 	
 	function modules_view() {
 		$this->pagination = false;
-		$this->sortable = true;
+		$this->sortable = false;
 		return parent::view();
 	}
 	
