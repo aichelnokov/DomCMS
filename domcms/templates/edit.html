@@ -1,0 +1,38 @@
+{% extends 'domcms.html' %}
+
+{% block content %}
+<form action="" method="post">
+	<div class="col-md-8">
+		<input type="text" class="form-control" id="title" name="title" value="" placeholder="Title" required autofocus>
+	</div>
+	<div class="col-md-4">
+		<div class="panel panel-default">
+			<div class="panel-heading"><h3 class="panel-title">System</h3></div>
+			<div class="panel-body">
+				<h6>Url</h6>
+				<input type="text" class="form-control" id="url" name="url" value="" placeholder="Url">
+				<h6>Page title</h6>
+				<input type="text" class="form-control" id="page_title" name="page_title" value="" placeholder="Page title" required>
+				<h6>Page keywords</h6>
+				<input type="text" class="form-control" id="page_keywords" name="page_keywords" value="" placeholder="Page keywords">
+				<h6>Page description</h6>
+				<input type="text" class="form-control" id="url" name="url" value="" placeholder="Page description">
+				<h6>Parent</h6>
+				<select class="selectpicker" data-live-search="true">
+					<option value="1">First</option>
+					<option value="2">Second</option>
+					<option value="2">Second</option>
+					<option value="2">Second</option>
+					<option value="2">Second</option>
+					<option value="2">Second</option>
+				</select>
+			</div>
+		</div>
+	</div>
+	<div class="col-md-4 col-md-offset-8">
+		<button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-floppy-disk"></span> Сохранить</button>
+		<button type="reset" class="btn btn-default"><span class="glyphicon glyphicon-refresh"></span> Восстановить</button>
+		<button type="reset" class="btn btn-danger"><span class="glyphicon glyphicon-trash"></span> Удалить</button>
+	</div>
+</form>
+{% endblock %}

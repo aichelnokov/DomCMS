@@ -51,22 +51,23 @@ class base {
 	}
 	
 	// Получение информации об объекте с заданным идентификатором
-	function getObject($params=array()) {
-		// Проверка прав доступа
-		if (empty($params)) return false;
+	function getObject($component) {
+		if (empty($component)) return false;
+		if ($model=$this->registry->users->checkAccess($this->mode,$this->model[$component],'access_read')) {
+			
+		}
 	}
 	
 	function getObjects($component='',$params=array(),$order='') {
 		if (empty($component)) return false;
 		if ($model=$this->registry->users->checkAccess($this->mode,$this->model[$component],'access_read')) {
-			//return $this->registry->db->get_data(,true,key($model));
 			$q = '';
 			$q .= 'SELECT '.implode(', ',array_keys($model)).' FROM '.$this->mode;
 			if ($w=$this->registry->db->build_array('SELECT',$params)) $q .= ' WHERE '.$w;
 			if ($order!='') $q .= ' ORDER BY '.$order;
 			return $this->registry->db->get_data($q);
 		} else {
-		
+			// return error access to this mode
 		}
 	}
 	
@@ -102,6 +103,11 @@ class base {
 		$this->addCrumb('DomCMS','/domcms/');
 		unset($id,$id_parent);
 		return $this->registry->modules->allow($this);
+	}
+	
+	function edit() {
+		$this->data['item'] = $this->getObject($this->mode);
+		if (empty($this->registry->template->file)) $this->registry->template->file = 'edit.html';
 	}
 	
 	function view() {
