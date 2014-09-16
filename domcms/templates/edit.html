@@ -3,21 +3,36 @@
 {% block content %}
 <form action="" method="post">
 	<div class="col-md-8">
+		<h6>Заголовок</h6>
 		<input type="text" class="form-control" id="title" name="title" value="" placeholder="Title" required autofocus>
+		<h6>Текст</h6>
+		<ul class="nav nav-tabs" role="tablist">
+			<li class="active"><a href="#text">Полный</a></li>
+			<li><a href="#preview">Краткий</a></li>
+		</ul>
+		<div class="tab-content">
+			<div class="tab-pane fade in active" id="text"><textarea name="text">text</textarea></div>
+			<div class="tab-pane fade" id="preview"><textarea name="preview">preview</textarea></div>
+		</div>
 	</div>
 	<div class="col-md-4">
 		<div class="panel panel-default">
-			<div class="panel-heading"><h3 class="panel-title">System</h3></div>
+			<div class="panel-heading"><h3 class="panel-title">Meta тэги</h3></div>
 			<div class="panel-body">
-				<h6>Url</h6>
-				<input type="text" class="form-control" id="url" name="url" value="" placeholder="Url">
-				<h6>Page title</h6>
+				<h6>Заголовок закладки страницы в браузере</h6>
 				<input type="text" class="form-control" id="page_title" name="page_title" value="" placeholder="Page title" required>
-				<h6>Page keywords</h6>
+				<h6>Ключевые слова</h6>
 				<input type="text" class="form-control" id="page_keywords" name="page_keywords" value="" placeholder="Page keywords">
-				<h6>Page description</h6>
+				<h6>Описание страницы</h6>
 				<input type="text" class="form-control" id="url" name="url" value="" placeholder="Page description">
-				<h6>Parent</h6>
+			</div>
+		</div>
+		<div class="panel panel-default">
+			<div class="panel-heading"><h3 class="panel-title">Параметры элемента</h3></div>
+			<div class="panel-body">
+				<h6>Алиас</h6>
+				<input type="text" class="form-control" id="url" name="url" value="" placeholder="Url">
+				<h6>Родительский элемент</h6>
 				<select class="selectpicker" data-live-search="true">
 					<option value="1">First</option>
 					<option value="2">Second</option>
