@@ -51,19 +51,27 @@ class base {
 	}
 	
 	// Получение информации об объекте с заданным идентификатором
+	function getQuery($model,$params) {
+		$q = 'SELECT '.implode(', ',array_keys($model)).' FROM '.$this->mode;
+		if ($w=$this->registry->db->build_array('SELECT',$params)) $q .= ' WHERE '.$w;	
+		return $q;
+	}
+	
 	function getObject($component) {
 		if (empty($component)) return false;
-		if ($model=$this->registry->users->checkAccess($this->mode,$this->model[$component],'access_read')) {
-			
-		}
+		if ($this->current_model=$this->registry->users->checkAccess($this->mode,$this->model[$component],'access_read')) {
+			foreach ($this->current_model as $k => $v) 
+				if (preg_match('/id_/',$k)>0) echo 'Получите пожалуйста список возможных родителей<br>';
+			$q = $this->getQuery($this->current_model,array('id'=>$this->id));
+			$q .= ' LIMIT 1';
+			return $this->registry->db->get_data($q,false);
+		} // else return false
 	}
 	
 	function getObjects($component='',$params=array(),$order='') {
 		if (empty($component)) return false;
-		if ($model=$this->registry->users->checkAccess($this->mode,$this->model[$component],'access_read')) {
-			$q = '';
-			$q .= 'SELECT '.implode(', ',array_keys($model)).' FROM '.$this->mode;
-			if ($w=$this->registry->db->build_array('SELECT',$params)) $q .= ' WHERE '.$w;
+		if ($this->current_model=$this->registry->users->checkAccess($this->mode,$this->model[$component],'access_read')) {
+			$q = $this->getQuery($this->current_model,$params);
 			if ($order!='') $q .= ' ORDER BY '.$order;
 			return $this->registry->db->get_data($q);
 		} else {
@@ -90,7 +98,7 @@ class base {
 		$this->module = $module;
 		$this->mode = $mode;
 		$this->action = $action;
-		if ($id=base::getvar('id',false)) { $this->id = $id; }
+		if ($id=base::getvar('id','')) { $this->id = $id; }
 		if ($id_parent=base::getvar('id_parent',false)) { $this->id_parent = $id_parent; }
 		$this->page = base::getvar('page',1);
 		$this->count_on_page = 20;

@@ -1,21 +1,28 @@
 {% extends 'domcms.html' %}
 
 {% block content %}
-<form action="{{ domcms.url.edit|replace({'%ID%':domcms.id}) }}" method="post">
+<form action="" method="post">
 	<div class="col-md-8">
 		{% import "macros.html" as macros %}
 		{% if domcms.data.item.title is defined %}
 			<h6>Заголовок</h6>
-			{{ macros.get_input('title',domcms.data.item.title,'text',domcms,'Module title','autofocus required') }}
+			{{ macros.get_input('title',domcms.data.item.title,domcms,'autofocus required') }}
 		{% endif %}
-		{% if domcms.data.item.class is defined %}
-			<h6>Класс</h6>
-			{{ macros.get_input('class',domcms.data.item.class,'text',domcms,'Class name') }}
-		{% endif %}
-		{% if domcms.data.item.tbl is defined %}
-			<h6>Таблица</h6>
-			{{ macros.get_input('tbl',domcms.data.item.tbl,'text',domcms,'Table in database') }}
-		{% endif %}
+		<h6>Текст</h6>
+		<ul class="nav nav-tabs" role="tablist">
+			<li class="active"><a href="#text">Полный</a></li>
+			<li><a href="#preview">Краткий</a></li>
+		</ul>
+		<div class="btn-group">
+			<a class="btn" data-edit="bold" title="Bold (Ctrl/Cmd+B)"><i class="icon-bold"></i></a>
+			<a class="btn" data-edit="italic" title="Italic (Ctrl/Cmd+I)"><i class="icon-italic"></i></a>
+			<a class="btn" data-edit="strikethrough" title="Strikethrough"><i class="icon-strikethrough"></i></a>
+			<a class="btn" data-edit="underline" title="Underline (Ctrl/Cmd+U)"><i class="icon-underline"></i></a>
+		</div>
+		<div class="tab-content">
+			<div class="tab-pane fade in active" id="text"><textarea class="wysiwyg" name="text">text</textarea></div>
+			<div class="tab-pane fade" id="preview"><textarea class="wysiwyg" name="preview">preview</textarea></div>
+		</div>
 	</div>
 	<div class="col-md-4">
 		<div class="panel panel-default">
