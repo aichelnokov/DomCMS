@@ -71,6 +71,10 @@ class modules extends base {
 		return $object->{$return}();
 	}
 	
+	function modules_fields_view() {
+		return parent::view();
+	}
+	
 	function modules_edit() {
 		return parent::edit();
 	}

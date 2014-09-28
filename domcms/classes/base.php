@@ -98,18 +98,18 @@ class base {
 		$this->module = $module;
 		$this->mode = $mode;
 		$this->action = $action;
-		if ($id=base::getvar('id','')) { $this->id = $id; }
-		if ($id_parent=base::getvar('id_parent',false)) { $this->id_parent = $id_parent; }
+		if ($id=base::getvar('id','')) { $this->id = $id; unset($id); }
+		if ($id_parent=base::getvar('id_parent',false)) { $this->id_parent = $id_parent; unset($id_parent); }
 		$this->page = base::getvar('page',1);
 		$this->count_on_page = 20;
 		$this->data = array();
 		$this->url = array(
 			'photos' => '/domcms/?module='.$this->module.'&mode='.$this->name.'_photos&action=view&id_parent=%ID_PARENT%',
+			'add' => '/domcms/?module='.$this->module.'&mode='.$this->name.'&action=add'.(!empty($this->id_parent)?'&id_parent='.$this->id_parent:''),
 			'edit' => '/domcms/?module='.$this->module.'&mode='.$this->mode.'&action=edit&id=%ID%',
 			'delete' => '/domcms/?module='.$this->module.'&mode='.$this->mode.'&action=delete&id=%ID%',
 		);
 		$this->addCrumb('DomCMS','/domcms/');
-		unset($id,$id_parent);
 		return $this->registry->modules->allow($this);
 	}
 	
@@ -120,7 +120,20 @@ class base {
 	
 	function view() {
 		$this->addCrumb('Список элементов');
-		$this->data['list'] = $this->getObjects($this->mode,array(),'id');
+		$this->buttons = array();
+		$this->current_model = $this->registry->users->checkAccess($this->mode,$this->model[$this->mode],'access_read');
+		if ($this->current_model['id']['access_write']==1) 
+			$this->buttons[] = array(
+				'title' => 'Добавить',
+				'url' => $this->url['add'],
+				'glyphicon' => 'plus-sign'
+			);
+		if ($this->module==$this->mode)
+			$this->data['list'] = $this->getObjects($this->mode,array(),'id');
+		else {
+			
+			$this->data['list'] = $this->getObjects($this->mode,array(),'id');
+		}
 		if (empty($this->registry->template->file)) $this->registry->template->file = 'view.html';
 	}
 	
