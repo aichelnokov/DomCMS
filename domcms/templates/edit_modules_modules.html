@@ -1,0 +1,21 @@
+{% extends 'edit_2_col.html' %}
+{% block col_1 %}
+	<div class="panel panel-default">
+		<div class="panel-heading"><h3 class="panel-title">Meta тэги</h3></div>
+		<div class="panel-body">
+			{% import "macros.html" as macros %}
+			{{ macros.get_input('class',domcms.data.item.class,domcms) }}
+			{{ macros.get_input('tbl',domcms.data.item.tbl,domcms) }}
+		</div>
+	</div>
+{% endblock %}
+{% block col_2 %}
+	<div class="panel panel-default">
+		<div class="panel-heading"><h3 class="panel-title">Параметры элемента</h3></div>
+		<div class="panel-body">
+			{% import "macros.html" as macros %}
+			{{ macros.get_input('id',domcms.data.item.id,domcms) }}
+		</div>
+	</div>
+	
+{% endblock %}

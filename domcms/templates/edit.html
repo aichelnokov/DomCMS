@@ -2,50 +2,7 @@
 
 {% block content %}
 <form action="{{ domcms.url.edit|replace({'%ID%':domcms.id}) }}" method="post">
-	<div class="col-md-8">
-		{% import "macros.html" as macros %}
-		{% if domcms.data.item.title is defined %}
-			<h6>Заголовок</h6>
-			{{ macros.get_input('title',domcms.data.item.title,'text',domcms,'Module title','autofocus required') }}
-		{% endif %}
-		{% if domcms.data.item.class is defined %}
-			<h6>Класс</h6>
-			{{ macros.get_input('class',domcms.data.item.class,'text',domcms,'Class name') }}
-		{% endif %}
-		{% if domcms.data.item.tbl is defined %}
-			<h6>Таблица</h6>
-			{{ macros.get_input('tbl',domcms.data.item.tbl,'text',domcms,'Table in database') }}
-		{% endif %}
-	</div>
-	<div class="col-md-4">
-		<div class="panel panel-default">
-			<div class="panel-heading"><h3 class="panel-title">Meta тэги</h3></div>
-			<div class="panel-body">
-				<h6>Заголовок закладки страницы в браузере</h6>
-				<input type="text" class="form-control" id="page_title" name="page_title" value="" placeholder="Page title" required>
-				<h6>Ключевые слова</h6>
-				<input type="text" class="form-control" id="page_keywords" name="page_keywords" value="" placeholder="Page keywords">
-				<h6>Описание страницы</h6>
-				<input type="text" class="form-control" id="url" name="url" value="" placeholder="Page description">
-			</div>
-		</div>
-		<div class="panel panel-default">
-			<div class="panel-heading"><h3 class="panel-title">Параметры элемента</h3></div>
-			<div class="panel-body">
-				<h6>Алиас</h6>
-				<input type="text" class="form-control" id="url" name="url" value="" placeholder="Url">
-				<h6>Родительский элемент</h6>
-				<select class="selectpicker" data-live-search="true">
-					<option value="1">First</option>
-					<option value="2">Second</option>
-					<option value="2">Second</option>
-					<option value="2">Second</option>
-					<option value="2">Second</option>
-					<option value="2">Second</option>
-				</select>
-			</div>
-		</div>
-	</div>
+	{% block col %}{% endblock %}
 	<div class="col-md-4 col-md-offset-8">
 		<button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-floppy-disk"></span> Сохранить</button>
 		<button type="reset" class="btn btn-default"><span class="glyphicon glyphicon-refresh"></span> Восстановить</button>

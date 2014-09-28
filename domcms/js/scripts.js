@@ -15,4 +15,15 @@ $(function(){
 			'ctrl+y meta+y meta+shift+z': 'redo'
         }
 	});
+	
+	/*$('[rel=tooltip]').bind("hover",function(){
+		$(this).tooltip({
+			animation: true,
+			placement: 'bottom',
+			selector: false,
+			trigger: 'hover',
+			delay:0
+		});
+	});*/
+	
 });

@@ -115,7 +115,7 @@ class base {
 	
 	function edit() {
 		$this->data['item'] = $this->getObject($this->mode);
-		if (empty($this->registry->template->file)) $this->registry->template->file = 'edit.html';
+		if (empty($this->registry->template->file)) $this->registry->template->file = 'edit_'.$this->name.'_'.$this->mode.'.html';
 	}
 	
 	function view() {
