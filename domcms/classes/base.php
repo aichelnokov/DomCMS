@@ -121,6 +121,7 @@ class base {
 			'add' => '/domcms/?module='.$this->module.'&mode='.$this->name.'&action=add'.(!empty($this->id_parent)?'&id_parent='.$this->id_parent:''),
 			'edit' => '/domcms/?module='.$this->module.'&mode='.$this->mode.'&action=edit&id=%ID%',
 			'delete' => '/domcms/?module='.$this->module.'&mode='.$this->mode.'&action=delete&id=%ID%',
+			'module' => '/domcms/?module='.$this->module,
 		);
 		$this->addCrumb('DomCMS','/domcms/');
 		return $this->registry->modules->allow($this);
@@ -151,7 +152,7 @@ class base {
 				if ($k==$this->module) {
 					continue;
 				} else {
-					$this->addLinks($k,$this->url['add'],'chevron-right');
+					$this->addLinks($k,$this->url['module'].'&mode='.$k,'chevron-right');
 				}
 			}
 			$this->data['list'] = $this->getObjects($this->mode,array(),'id');
