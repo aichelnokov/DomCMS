@@ -130,6 +130,7 @@ class base {
 		$this->addCrumb('Просмотр элемента');
 		if ($submit=base::getvar('form_submit','')) {
 			if ($add) 
+				// добавление объекта, добавление сообщения и редирект %)
 				$this->addObject($this->mode);
 			else
 				$this->updateObject($this->mode);
@@ -155,6 +156,7 @@ class base {
 			}
 			$this->data['list'] = $this->getObjects($this->mode,array(),'id');
 		} else {
+			// !!! Добавить автоматический селект
 			$this->data['list'] = $this->getObjects($this->mode,array(),'id');
 		}
 		if (empty($this->registry->template->file)) $this->registry->template->file = 'view.html';
