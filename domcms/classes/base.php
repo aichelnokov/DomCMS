@@ -43,11 +43,24 @@ class base {
 		}
 	}
 	
-	// Если существует метод get{name} вызываем его и возвращаем результат
-	// Иначе возвращает false
+	// Если существует метод get{name} вызываем его и возвращаем результат иначе возвращает false
 	function __get($name) {
 		if(method_exists($this,'get'.$name)) return $this->{'get'.$name}(); 
 		else return false;
+	}
+	
+	function updateObject($component) {
+		if ($this->current_model=$this->registry->users->checkAccess($this->mode,$this->model[$component],'access_write')) {
+			$this->current_model = array_intersect_key($this->current_model,$_POST);
+			$this->edit_data = array();
+			foreach ($this->current_model as $k => $v) {
+				$this->edit_data[$k] = base::getvar($k,$v['default']);
+			}
+			$this->registry->db->update($this->mode,$this->edit_data,'id='.$this->id);
+			unset($this->edit_data);
+			$this->addMessage('Запись успешно обновлена','success');
+			return true;
+		}
 	}
 	
 	// Получение информации об объекте с заданным идентификатором
@@ -113,25 +126,35 @@ class base {
 		return $this->registry->modules->allow($this);
 	}
 	
-	function edit() {
+	function edit($add=false) {
+		$this->addCrumb('Просмотр элемента');
+		if ($submit=base::getvar('form_submit','')) {
+			if ($add) 
+				$this->addObject($this->mode);
+			else
+				$this->updateObject($this->mode);
+		}
 		$this->data['item'] = $this->getObject($this->mode);
 		if (empty($this->registry->template->file)) $this->registry->template->file = 'edit_'.$this->name.'_'.$this->mode.'.html';
 	}
 	
+	function add() { return $this->edit(true); }
+	
 	function view() {
 		$this->addCrumb('Список элементов');
-		$this->buttons = array();
 		$this->current_model = $this->registry->users->checkAccess($this->mode,$this->model[$this->mode],'access_read');
 		if ($this->current_model['id']['access_write']==1) 
-			$this->buttons[] = array(
-				'title' => 'Добавить',
-				'url' => $this->url['add'],
-				'glyphicon' => 'plus-sign'
-			);
-		if ($this->module==$this->mode)
+			$this->addButtons('Добавить',$this->url['add'],'plus-sign');
+		if ($this->module==$this->mode) {
+			foreach ($this->model as $k => $v) {
+				if ($k==$this->module) {
+					continue;
+				} else {
+					$this->addLinks($k,$this->url['add'],'chevron-right');
+				}
+			}
 			$this->data['list'] = $this->getObjects($this->mode,array(),'id');
-		else {
-			
+		} else {
 			$this->data['list'] = $this->getObjects($this->mode,array(),'id');
 		}
 		if (empty($this->registry->template->file)) $this->registry->template->file = 'view.html';
@@ -144,29 +167,40 @@ class base {
 		return true;
 	}
 	
+	function addMessage($message='',$status='info') {
+		if (empty($message)) return false;
+		if (empty($_SESSION['messages'])) $_SESSION['messages'] = array();
+		$_SESSION['messages'][] = array('message'=>$message,'status'=>$status,'time'=>date('d-m-Y H:i',time()));
+	}
+	
+	function addButtons($title='',$url='',$glyphicon='',$direction='float-left') {
+		if (empty($this->buttons)) $this->buttons = array();
+		$this->buttons[] = array('title'=>$title, 'url'=>$url, 'glyphicon'=>$glyphicon,'direction'=>$direction);
+	}
+	
+	function addLinks($title='',$url='',$glyphicon='',$direction='float-left') {
+		if (empty($this->links)) $this->links = array();
+		$this->links[] = array('title'=>$title, 'url'=>$url, 'glyphicon'=>$glyphicon,'direction'=>$direction);
+	}
+	
 	// Static methods
 	
-	static function extend(&$object,$data) {
-		foreach($data as $k=>$v) $object->{$k}=$v;
-	}
+	static function extend(&$object,$data) { foreach($data as $k=>$v) $object->{$k}=$v; }
 	
 	// Create an object if is not exists, or return his
 	static function j($name,$class='') {
 		static $objects;
 		global $config;
-		if(isset($objects[$name])) {
-			$obj=$objects[$name];
-		} elseif(isset($_SESSION['OBJECTS'][$name])) {
+		if(isset($objects[$name])) $obj=$objects[$name];
+		elseif(isset($_SESSION['OBJECTS'][$name])) {
 			$obj=unserialize($_SESSION['OBJECTS'][$name]);
-			if(!call_user_func_array(array($obj,'restore'),array_slice(func_get_args(),2))) {
-				$obj=false;
-			}
+			if(!call_user_func_array(array($obj,'restore'),array_slice(func_get_args(),2))) $obj=false;
 		} elseif(class_exists($class)) {
 			$obj=new $class($name,isset($config[$name])?$config[$name]:array());
 			if(method_exists($obj,'init'))
-				if(!call_user_func_array(array($obj,'init'),array_slice(func_get_args(),2))) { $obj=false; echo 'object is false\'d!<br />'; }
+				if(!call_user_func_array(array($obj,'init'),array_slice(func_get_args(),2))) $obj=false;
 		}
-		if($obj) { $objects[$name]=$obj; } //else { echo 'object is not exist\'s<br />'; };
+		if($obj) $objects[$name]=$obj;
 		return $obj?$obj:false;
 	}
 	
@@ -183,9 +217,8 @@ class base {
 	}
 	
 	function redirect( $url='' ) {
-		if($url=='') {//Если url пустой, значит просто надо обновить страницу
-			header('Refresh:0;');
-		} else {
+		if($url=='') header('Refresh:0;'); //Если url пустой, значит просто надо обновить страницу
+		else { 
 			$server_name = ( !empty($_SERVER['SERVER_NAME']) ) ? $_SERVER['SERVER_NAME'] : getenv('SERVER_NAME');
 			$url = ( !substr($url, 0, 4) == 'http' ) ?  $server_name . $url : $url;
 			header('Location: ' . $url);

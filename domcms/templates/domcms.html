@@ -63,16 +63,34 @@
 		</ol>
 	</div>
 	<div id="main" class="container" role="main">
-		{% if domcms.buttons|length>0 %}
-			<div class="row">
-				<div class="col-md-12 col-xs-12">
+		<div class="row">
+			<div class="col-md-8 col-xs-12">
+				<h1>{{ domcms.module|capitalize }}</h1>
+			</div>
+			<div class="col-md-4 col-xs-12">
+				{% for k,i in messages if messages is defined %}
+					<div class="alert alert-{{ i.status }}"><span class="glyphicon glyphicon-ok-sign"></span> <strong>{{ i.message }}</strong><div class="text-right">{{ i.time }}</div></div>
+				{% endfor %}
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-8 col-xs-12">
+				{% if domcms.links|length>0 %}
+					{% for i in domcms.links %}
+						<h4><a href="{{ i.url }}">{% if i.glyphicon is not empty %}<span class="glyphicon glyphicon-{{ i.glyphicon }}"></span> {% endif %}{{ i.title|capitalize }}</a></h4>
+					{% endfor %}
+				{% endif %}
+				{% block links %}{% endblock %}
+			</div>
+			<div class="col-md-4 col-xs-12 text-right">
+				{% if domcms.buttons|length>0 %}
 					{% for i in domcms.buttons %}
 						<a class="btn btn-default" href="{{ i.url }}">{% if i.glyphicon is not empty %}<span class="glyphicon glyphicon-{{ i.glyphicon }}"></span> {% endif %}{{ i.title }}</a>
 					{% endfor %}
-					{% block buttons %}{% endblock %}
-				</div>
+				{% endif %}
+				{% block buttons %}{% endblock %}
 			</div>
-		{% endif %}
+		</div>
 		<div class="row">
 			{% block content %}{% endblock %}
 		</div>

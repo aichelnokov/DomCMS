@@ -4,6 +4,7 @@
 		<div class="panel-heading"><h3 class="panel-title">Meta тэги</h3></div>
 		<div class="panel-body">
 			{% import "macros.html" as macros %}
+			{{ macros.get_input('title',domcms.data.item.title,domcms) }}
 			{{ macros.get_input('class',domcms.data.item.class,domcms) }}
 			{{ macros.get_input('tbl',domcms.data.item.tbl,domcms) }}
 		</div>

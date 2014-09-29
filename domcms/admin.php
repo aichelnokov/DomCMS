@@ -22,6 +22,11 @@ else {
 		$admin->domcms($module,$mode,$action);
 	}
 	if (empty($template->file)) $template->file = 'domcms.html';
+	if (!empty($_SESSION['messages'])) {
+		if (empty($template->messages)) $template->messages = array();
+		foreach ($_SESSION['messages'] as $k => $v) 
+			$template->messages[] = array_shift($_SESSION['messages']);
+	}
 	$template->domcms = $admin;
 }
 $template->users = $users;

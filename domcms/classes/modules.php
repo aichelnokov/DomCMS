@@ -75,8 +75,8 @@ class modules extends base {
 		return parent::view();
 	}
 	
-	function modules_edit() {
-		return parent::edit();
+	function modules_edit($add=false) {
+		return parent::edit($add);
 	}
 	
 	function modules_view() {
