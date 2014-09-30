@@ -305,8 +305,24 @@ class db_mysqli extends base {
 		return ($table==''||mysqli_num_rows(mysqli_query($this->connect_id,"SHOW TABLES LIKE '".$table."'"))==1)?true:false;
 	}
 	
-	function existsField($table,$field,$options) {
-		
+	function complianceTable($table,$fields) {
+		if (empty($table) or empty($fields)) return false;
+		$original_fields = $this->get_list('SHOW COLUMNS FROM '.$table);
+		$alter_definition = '';
+		$alter_fields = array();
+		foreach ($fields as $k => $v) {
+			if (!in_array($k,$original_fields)) {
+				$alter_fields[$k] = $v;
+				$alter_definition .= strtr($this->createTableField($k,$v),array(', '=>', ADD '));
+			}
+		}
+		if ($alter_definition==='') {
+			return false;
+		} else {
+			$alter_definition = 'ALTER TABLE '.$table.substr($alter_definition,1);
+			$this->query($alter_definition);
+			return $alter_fields;
+		}
 	}
 	
 	function createTable($table,$fields) {

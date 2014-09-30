@@ -10,6 +10,7 @@ class modules extends base {
 			'class' => array('type'=>'VARCHAR(255)','default'=>''),
 			'title' => array('type'=>'VARCHAR(255)','default'=>''),
 			'tbl' => array('type'=>'VARCHAR(255)','default'=>''),
+			'controls_view' => array('type'=>'VARCHAR(255)','default'=>''),
 		),
 		'modules_fields' => array(
 			'id' => array('type'=>'INT(255)','flags'=>'UNSIGNED NOT NULL AUTO_INCREMENT','inner_keys'=>'PRIMARY'),
@@ -72,6 +73,7 @@ class modules extends base {
 	}
 	
 	function modules_fields_view() {
+		$this->addCrumb('Поля модуля',$this->url['module_mode']);
 		return parent::view();
 	}
 	

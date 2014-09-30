@@ -133,10 +133,10 @@ class users extends base {
 			$this->id_groups = $temp['id'];
 		}
 		$this->access = array();
-		$temp = $this->registry->db->get_data("SELECT m.id, m.tbl FROM modules AS m",false,'tbl');
+		$temp = $this->registry->db->get_data("SELECT m.id, m.tbl, m.title FROM modules AS m",false,'tbl');
 		foreach ($temp as $k => $v) {
 			$this->access[$k] = $this->registry->db->get_data("
-				SELECT m_f.name, g_a.access_read, g_a.access_write, g_a.access_delete 
+				SELECT m_f.name, m_f.title, g_a.access_read, g_a.access_write, g_a.access_delete 
 				FROM modules_fields AS m_f 
 				RIGHT JOIN groups_access AS g_a 
 					ON g_a.id_modules_fields=m_f.id AND g_a.id_groups=$this->id_groups 

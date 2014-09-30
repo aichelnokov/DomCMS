@@ -41,7 +41,7 @@
 					{% endif %}
 					<div class="btn-group">
 						<a href="{{ domcms.url.edit|replace({'%ID%':i.id}) }}" class="btn btn-default{% if users.access[domcms.mode]['id']['access_write']==0 %} disabled{% endif %}"><span class="glyphicon glyphicon-pencil"></span></a>
-						<a href="{{ domcms.url.delete|replace({'%ID%':i.id}) }}" class="btn btn-default{% if users.access[domcms.mode]['id']['access_delete']==0 %} disabled{% endif %}"><span class="glyphicon glyphicon-trash"></span></a>
+						<a href="{{ domcms.url.delete|replace({'%ID%':i.id}) }}" class="btn btn-danger{% if users.access[domcms.mode]['id']['access_delete']==0 %} disabled{% endif %}"><span class="glyphicon glyphicon-trash"></span></a>
 					</div>
 				</div>
 			</div>

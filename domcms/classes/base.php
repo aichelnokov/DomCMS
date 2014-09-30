@@ -98,10 +98,13 @@ class base {
 		foreach ($this->model as $k => $v) {
 			if (!$this->registry->db->existsTable($k))
 				$this->registry->db->createTable($k,$v);
-			/* else { 
-				foreach ($v as $k1 => $v1) 
-					if (!$this->registry->db->existsField($k,$k1,$v1))
-			}*/
+			 else { 
+				/*foreach ($v as $k1 => $v1) 
+					if (!$this->registry->db->existsField($k,$k1,$v1))*/
+				if ($alter_fields = $this->registry->db->complianceTable($k,$v)) {
+					var_dump($alter_fields);
+				}
+			}
 			$this->registry->modules->checkModule($this->name,$k,$v);
 		}
 		return true;
@@ -122,6 +125,7 @@ class base {
 			'edit' => '/domcms/?module='.$this->module.'&mode='.$this->mode.'&action=edit&id=%ID%',
 			'delete' => '/domcms/?module='.$this->module.'&mode='.$this->mode.'&action=delete&id=%ID%',
 			'module' => '/domcms/?module='.$this->module,
+			'module_mode' => '/domcms/?module='.$this->module.'&mode='.$this->mode,
 		);
 		$this->addCrumb('DomCMS','/domcms/');
 		return $this->registry->modules->allow($this);
@@ -143,7 +147,6 @@ class base {
 	function add() { return $this->edit(true); }
 	
 	function view() {
-		$this->addCrumb('Список элементов');
 		$this->current_model = $this->registry->users->checkAccess($this->mode,$this->model[$this->mode],'access_read');
 		if ($this->current_model['id']['access_write']==1) 
 			$this->addButtons('Добавить',$this->url['add'],'plus-sign');
@@ -158,8 +161,11 @@ class base {
 			$this->data['list'] = $this->getObjects($this->mode,array(),'id');
 		} else {
 			// !!! Добавить автоматический селект
+			print_r($this->current_model);
+			//$this->addCrumb('Список элементов');
 			$this->data['list'] = $this->getObjects($this->mode,array(),'id');
 		}
+		$this->addCrumb('Список элементов');
 		if (empty($this->registry->template->file)) $this->registry->template->file = 'view.html';
 	}
 	
