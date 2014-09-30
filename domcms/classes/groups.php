@@ -23,6 +23,11 @@ class groups extends base {
 		return $db->get_list('SELECT id FROM groups ORDER BY id');
 	}
 	
+	static function getOwnerId() {
+		global $db;
+		return $db->get_single('SELECT id FROM groups WHERE title="Владелец" LIMIT 1');
+	}
+	
 }
 
 ?>

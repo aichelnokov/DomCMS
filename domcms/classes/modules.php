@@ -10,7 +10,7 @@ class modules extends base {
 			'class' => array('type'=>'VARCHAR(255)','default'=>''),
 			'title' => array('type'=>'VARCHAR(255)','default'=>''),
 			'tbl' => array('type'=>'VARCHAR(255)','default'=>''),
-			'controls_view' => array('type'=>'VARCHAR(255)','default'=>''),
+			'controls_view' => array('type'=>'VARCHAR(255)','default'=>'edit delete'),
 		),
 		'modules_fields' => array(
 			'id' => array('type'=>'INT(255)','flags'=>'UNSIGNED NOT NULL AUTO_INCREMENT','inner_keys'=>'PRIMARY'),
@@ -42,8 +42,10 @@ class modules extends base {
 	}
 	
 	function fillModuleFields($id,$fields) {
+		if (empty($id) or empty($fields)) return false;
 		$access_array = array();
 		$groups_list = groups::getGroupsList();
+		$groups_owner = groups::getOwnerId();
 		foreach ($fields as $k => $v) {
 			$id_modules_fields = $this->registry->db->insert('modules_fields',array('id_modules'=>$id,'name'=>$k,'title'=>$k));
 			foreach ($groups_list as $group)
@@ -51,8 +53,8 @@ class modules extends base {
 					'id_groups' => $group,
 					'id_modules_fields' => $id_modules_fields,
 					'access_read' => 1,
-					'access_write' => 0,
-					'access_delete' => 0,
+					'access_write' => ( !empty($groups_owner) && $groups_owner==$group ) ?1 :0,
+					'access_delete' => ( !empty($groups_owner) && $groups_owner==$group ) ?1 :0,
 				);
 			unset($id_modules_fields);
 		}
@@ -60,7 +62,7 @@ class modules extends base {
 	}
 	
 	function existsModule($class,$table) {
-		return (0<$id=$this->registry->db->get_single("SELECT id FROM modules WHERE class='$class' AND tbl='$table'"))?$id:false;
+		return (0<$id=$this->registry->db->get_single("SELECT id FROM modules WHERE class='$class' AND tbl='$table' LIMIT 1"))?$id:false;
 	}
 	
 	function allow(&$object) {

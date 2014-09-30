@@ -96,14 +96,11 @@ class base {
 	function checkModel() {
 		if (empty($this->model)) return true;
 		foreach ($this->model as $k => $v) {
-			if (!$this->registry->db->existsTable($k))
+			if (!$this->registry->db->existsTable($k)) {
 				$this->registry->db->createTable($k,$v);
-			 else { 
-				/*foreach ($v as $k1 => $v1) 
-					if (!$this->registry->db->existsField($k,$k1,$v1))*/
-				if ($alter_fields = $this->registry->db->complianceTable($k,$v)) {
-					var_dump($alter_fields);
-				}
+			} else {
+				if ($alter_fields = $this->registry->db->complianceTable($k,$v))
+					$this->registry->modules->fillModuleFields($this->registry->modules->existsModule($this->name,$k),$alter_fields);
 			}
 			$this->registry->modules->checkModule($this->name,$k,$v);
 		}
