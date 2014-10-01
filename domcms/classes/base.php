@@ -125,11 +125,11 @@ class base {
 			'module_mode' => '/domcms/?module='.$this->module.'&mode='.$this->mode,
 		);
 		$this->addCrumb('DomCMS','/domcms/');
+		$this->title = $this->registry->db->get_single('SELECT DISTINCT title FROM modules WHERE class="'.$this->name.'" LIMIT 1');
 		return $this->registry->modules->allow($this);
 	}
 	
 	function edit($add=false) {
-		$this->addCrumb('Просмотр элемента');
 		if ($submit=base::getvar('form_submit','')) {
 			if ($add) 
 				// добавление объекта, добавление сообщения и редирект %)
@@ -138,6 +138,7 @@ class base {
 				$this->updateObject($this->mode);
 		}
 		$this->data['item'] = $this->getObject($this->mode);
+		$this->addCrumb((!empty($this->data['item']['title'])?'Просмотр элемента &laquo;'.$this->data['item']['title'].'&raquo;':'Просмотр элемента'));
 		if (empty($this->registry->template->file)) $this->registry->template->file = 'edit_'.$this->name.'_'.$this->mode.'.html';
 	}
 	
