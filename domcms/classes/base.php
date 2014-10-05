@@ -152,18 +152,24 @@ class base {
 	function add() { return $this->edit(true); }
 	
 	function view() {
+		$this->addCrumb('Список элементов');
 		$this->current_model = $this->registry->users->checkAccess($this->mode,$this->model[$this->mode],'access_read');
 		if ($this->current_model['id']['access_write']==1) 
 			$this->addButtons('Добавить',$this->url['add'],'plus-sign');
+		if (!empty($this->modulesChain['children']))
+			foreach ($this->modulesChain['children'] as $k => $v) {
+				$this->modulesChain['children'][$k]['current_model'] = $this->registry->users->checkAccess($v['tbl'],$this->model[$v['tbl']],'access_read');
+				//if ($this->modulesChain['children'][$k]['current_model']['id']['access_read']==1) 
+					$this->addLinks($v['title'],'/domcms/?module='.$v['class'].'&mode='.$v['tbl'],'chevron-right');
+			}
 		if ($this->module==$this->mode) {
 			foreach ($this->model as $k => $v) {
 				if ($k==$this->module) {
 					continue;
 				} else {
-					$this->addLinks($k,$this->url['module'].'&mode='.$k,'chevron-right');
+					//$this->addLinks($k,$this->url['module'].'&mode='.$k,'chevron-right');
 				}
 			}
-			$this->addCrumb('Список элементов');
 			$this->data['list'] = $this->getObjects($this->mode,array(),'id');
 		} else {
 			// !!! Добавить автоматический селект
@@ -173,7 +179,6 @@ class base {
 				}
 			}*/
 			//print_r($this->current_model);
-			$this->addCrumb('Список элементов');
 			$this->data['list'] = $this->getObjects($this->mode,array(),'id');
 		}
 		if (empty($this->registry->template->file)) $this->registry->template->file = 'view.html';

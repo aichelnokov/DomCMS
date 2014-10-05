@@ -150,8 +150,14 @@ class users extends base {
 		if (empty($component)) return false;
 		if (empty($model)) return false;
 		$model = array_merge_recursive($model,$this->access[$component]);
-		foreach ($model as $k => $v)
-			if ($v[$access]!=1) unset($model[$k]);
+		foreach ($model as $k => $v) {
+			if (!empty($v[$access])) {
+				if ($v[$access]!=1) unset($model[$k]);
+			} else {
+				global $domcms;
+				$domcms->addMessage("Опасность!<br>Для ".$component."['".$k."'] не объявлено '$access'!",'danger');
+			}
+		}
 		return (!empty($model))?$model:false;
 	}
 	
