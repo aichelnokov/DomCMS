@@ -125,13 +125,13 @@ class base {
 			'tail' => '',
 		);
 		if ($this->modulesChain = $this->registry->modules->getModulesChain($this)) {
-			var_dump($this->modulesChain);
+			$this->addCrumb('DomCMS','/domcms/');
+			$this->fillCrumbs($this->modulesChain);
 		}
 			// fill $this->filters['id_parent_module']
 			// fill $this->id_parent_module
 			// add url_tail
 			// add crumbs
-		$this->addCrumb('DomCMS','/domcms/');
 		$this->title = $this->registry->db->get_single('SELECT DISTINCT title FROM modules WHERE class="'.$this->name.'" LIMIT 1');
 		return $this->registry->modules->allow($this);
 	}
@@ -184,6 +184,13 @@ class base {
 		if (empty($title)) return false;
 		$this->crumbs[] = array('title'=>$title,'url'=>$url);
 		return true;
+	}
+	
+	function fillCrumbs($chain=array()) {
+		if (empty($chain)) return false;
+		if (!empty($chain['parents']))
+			$this->fillCrumbs($this->modulesChain['parents']);
+		$this->addCrumb($chain['title'],'/domcms/?module='.$chain['class'].'&mode='.$chain['tbl']);
 	}
 	
 	function addMessage($message='',$status='info') {

@@ -121,7 +121,6 @@ class modules extends base {
 	}
 	
 	function allow(&$object) {
-		$object->addCrumb($object->title,'/domcms/?module='.$object->name);
 		if (method_exists($object,$object->mode.'_'.$object->action)) $return = $object->mode.'_'.$object->action;
 		else if (method_exists($object,$object->action)) $return = $object->action;
 		else if (method_exists($object,$object->mode)) $return = $object->mode;
@@ -130,7 +129,6 @@ class modules extends base {
 	}
 	
 	function modules_fields_view() {
-		$this->addCrumb('Поля модуля',$this->url['module_mode']);
 		return parent::view();
 	}
 	
