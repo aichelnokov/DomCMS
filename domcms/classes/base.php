@@ -112,7 +112,6 @@ class base {
 		$this->mode = $mode;
 		$this->action = $action;
 		if ($id=base::getvar('id','')) { $this->id = $id; unset($id); }
-		if ($id_parent=base::getvar('id_parent',false)) { $this->id_parent = $id_parent; unset($id_parent); }
 		$this->page = base::getvar('page',1);
 		$this->count_on_page = 20;
 		$this->data = array();
@@ -123,7 +122,15 @@ class base {
 			'delete' => '/domcms/?module='.$this->module.'&mode='.$this->mode.'&action=delete&id=%ID%',
 			'module' => '/domcms/?module='.$this->module,
 			'module_mode' => '/domcms/?module='.$this->module.'&mode='.$this->mode,
+			'tail' => '',
 		);
+		if ($this->modulesChain = $this->registry->modules->getModulesChain($this)) {
+			var_dump($this->modulesChain);
+		}
+			// fill $this->filters['id_parent_module']
+			// fill $this->id_parent_module
+			// add url_tail
+			// add crumbs
 		$this->addCrumb('DomCMS','/domcms/');
 		$this->title = $this->registry->db->get_single('SELECT DISTINCT title FROM modules WHERE class="'.$this->name.'" LIMIT 1');
 		return $this->registry->modules->allow($this);
@@ -156,14 +163,19 @@ class base {
 					$this->addLinks($k,$this->url['module'].'&mode='.$k,'chevron-right');
 				}
 			}
+			$this->addCrumb('Список элементов');
 			$this->data['list'] = $this->getObjects($this->mode,array(),'id');
 		} else {
 			// !!! Добавить автоматический селект
-			print_r($this->current_model);
-			//$this->addCrumb('Список элементов');
+			/*foreach ($this->current_model as $k => $v) { 
+				if (!empty($v['outer_keys'])) {
+					if (!empty($_SESSION['filters'][$this->module][$this->mode][$k]) $this->filters[$k] = array;
+				}
+			}*/
+			//print_r($this->current_model);
+			$this->addCrumb('Список элементов');
 			$this->data['list'] = $this->getObjects($this->mode,array(),'id');
 		}
-		$this->addCrumb('Список элементов');
 		if (empty($this->registry->template->file)) $this->registry->template->file = 'view.html';
 	}
 	

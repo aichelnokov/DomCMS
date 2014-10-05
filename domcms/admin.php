@@ -18,8 +18,8 @@ else {
 	// include class
 	if (file_exists(ROOT_DIR.'domcms/classes/'.$module.'.php')) {
 		require_once(ROOT_DIR.'domcms/classes/'.$module.'.php');
-		$admin = base::j($module,$module);
-		$admin->domcms($module,$mode,$action);
+		$domcms = base::j($module,$module);
+		$domcms->domcms($module,$mode,$action);
 	}
 	if (empty($template->file)) $template->file = 'domcms.html';
 	if (!empty($_SESSION['messages'])) {
@@ -27,7 +27,7 @@ else {
 		foreach ($_SESSION['messages'] as $k => $v) 
 			$template->messages[] = array_shift($_SESSION['messages']);
 	}
-	$template->domcms = $admin;
+	$template->domcms = $domcms;
 }
 $template->users = $users;
 

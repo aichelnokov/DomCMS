@@ -4,6 +4,8 @@ if(!defined('IN_SITE')) exit;
 
 class modules extends base {
 	
+	protected $modulesRegistry = array();
+	
 	protected $model = array (
 		'modules' => array(
 			'id' => array('type'=>'INT(255)','flags'=>'UNSIGNED NOT NULL AUTO_INCREMENT','inner_keys'=>'PRIMARY'),
@@ -30,15 +32,72 @@ class modules extends base {
 	);
 	
 	function init() {
+		$this->modulesRegistry = $this->registry->db->get_data('SELECT m.id, m.title, m.class, m.controls_view, m.tbl, m.tbl as k FROM modules AS m',true,'k');
 		return parent::init();
 	}
 	
 	function checkModule($class,$table,$fields) {
-		if ($id = $this->existsModule($class,$table)) {
+		if ($module = $this->existsModule($class,$table,true)) {
+			
 		} else {
 			$id = $this->registry->db->insert('modules',array('class'=>$class,'tbl'=>$table,'title'=>$table));
 			$this->fillModuleFields($id,$fields);
 		}
+	}
+	
+	function existsModule($class,$table,$full=false) {
+		if ($full==false)
+			return (0<$id=$this->registry->db->get_single("SELECT id FROM modules WHERE class='$class' AND tbl='$table' LIMIT 1"))?$id:false;
+		else
+			return (0<$objects=$this->registry->db->get_data("SELECT * FROM modules WHERE class='$class' AND tbl='$table' LIMIT 1",true,'tbl'))?$objects:false;
+	}
+	
+	function getModulesChainParents($chain,$model) {
+		$parents = array();
+		foreach ($model[$chain['tbl']] as $k => $v) {
+			if (!empty($v['outer_keys'])) {
+				if (preg_match('/'.$chain['tbl'].'\(/',$v['outer_keys'])>0) continue; // id_parent в этой же таблице
+				$outer_mode = substr($v['outer_keys'],0,strpos($v['outer_keys'],'('));
+				if (!empty($model[$outer_mode])) {
+					$parents = $this->registry->modules->modulesRegistry[$outer_mode];
+					$parents['parents'] = $this->getModulesChainParents($parents,$model);
+				}
+			}
+		}
+		return $parents;
+	}
+	
+	function getModulesChainChildrens($chain,$model) {
+		$children = array();
+		foreach ($model as $k => $v) {
+			if ($k==$chain['tbl']) continue;
+			foreach ($v as $k1 => $v1) {
+				if (isset($v1['outer_keys'])) {
+					if (preg_match('/'.$chain['tbl'].'\(/',$v1['outer_keys'])>0) {
+						$children[$k] = $this->registry->modules->modulesRegistry[$k];
+						$children[$k]['children'] = $this->getModulesChainChildrens($children[$k],$model);
+					}
+				}
+			}
+		}
+		return $children;
+	}
+	
+	function getModulesChain($domcms) {
+		if (empty($domcms)) return false;
+		$chain = array();
+		foreach ($domcms->model as $k => $v) {
+			if ($k === $domcms->module && $domcms->module === $domcms->mode) {
+				$chain = $this->registry->modules->modulesRegistry[$k];
+				$chain['children'] = $this->getModulesChainChildrens($chain,$domcms->model); // Возвращение цепочки с дочерними модулями
+				return $chain; // Сразу вернуть корневое звено
+			} elseif ($k === $domcms->mode) {
+				$chain = $this->registry->modules->modulesRegistry[$k];
+				$chain['children'] = $this->getModulesChainChildrens($chain,$domcms->model); // Возвращение цепочки с дочерними модулями
+				$chain['parents'] = $this->getModulesChainParents($chain,$domcms->model); // Возвращение цепочки с родительскими модулями
+			}
+		}
+		return $chain;
 	}
 	
 	function fillModuleFields($id,$fields) {
@@ -59,10 +118,6 @@ class modules extends base {
 			unset($id_modules_fields);
 		}
 		return $this->registry->db->insert('groups_access',$access_array);
-	}
-	
-	function existsModule($class,$table) {
-		return (0<$id=$this->registry->db->get_single("SELECT id FROM modules WHERE class='$class' AND tbl='$table' LIMIT 1"))?$id:false;
 	}
 	
 	function allow(&$object) {
