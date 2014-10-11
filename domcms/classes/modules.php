@@ -56,10 +56,14 @@ class modules extends base {
 		$parents = array();
 		foreach ($model[$chain['tbl']] as $k => $v) {
 			if (!empty($v['outer_keys'])) {
-				if (preg_match('/'.$chain['tbl'].'\(/',$v['outer_keys'])>0) continue; // id_parent в этой же таблице
-				$outer_mode = substr($v['outer_keys'],0,strpos($v['outer_keys'],'('));
-				if (!empty($model[$outer_mode])) {
-					$parents = $this->registry->modules->modulesRegistry[$outer_mode];
+				if (preg_match('/'.$chain['tbl'].'\(/',$v['outer_keys'])>0) { // id_parent в этой же таблице
+					
+					continue;
+				}
+				$relation_table = substr($v['outer_keys'],0,strpos($v['outer_keys'],'('));
+				// if relation_table != current mode then relation many2many
+				if (!empty($model[$relation_table])) {
+					$parents = $this->registry->modules->modulesRegistry[$relation_table];
 					$parents['parents'] = $this->getModulesChainParents($parents,$model);
 				}
 			}

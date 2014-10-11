@@ -64,8 +64,9 @@ class base {
 	}
 	
 	// Получение информации об объекте с заданным идентификатором
-	function getQuery($model,$params) {
-		$q = 'SELECT '.implode(', ',array_keys($model)).' FROM '.$this->mode;
+	function getQuery($model,$params,$mode='') {
+		if ($mode=='') $mode = $this->mode;
+		$q = 'SELECT '.implode(', ',array_keys($model)).' FROM '.$mode;
 		if ($w=$this->registry->db->build_array('SELECT',$params)) $q .= ' WHERE '.$w;	
 		return $q;
 	}
@@ -153,6 +154,7 @@ class base {
 	
 	function view() {
 		$this->addCrumb('Список элементов');
+		$this->addFilters();
 		$this->current_model = $this->registry->users->checkAccess($this->mode,$this->model[$this->mode],'access_read');
 		if ($this->current_model['id']['access_write']==1) 
 			$this->addButtons('Добавить',$this->url['add'],'plus-sign');
@@ -172,16 +174,35 @@ class base {
 			}
 			$this->data['list'] = $this->getObjects($this->mode,array(),'id');
 		} else {
-			// !!! Добавить автоматический селект
-			/*foreach ($this->current_model as $k => $v) { 
-				if (!empty($v['outer_keys'])) {
-					if (!empty($_SESSION['filters'][$this->module][$this->mode][$k]) $this->filters[$k] = array;
-				}
-			}*/
-			//print_r($this->current_model);
 			$this->data['list'] = $this->getObjects($this->mode,array(),'id');
 		}
 		if (empty($this->registry->template->file)) $this->registry->template->file = 'view.html';
+	}
+	
+	function addFilters() {
+		if (empty($this->filters)) $this->filters = array();
+		if (isset($this->modulesChain['parents']))
+			$this->addFilter($this->modulesChain['parents']);
+		var_dump($this->filters);
+	}
+	
+	function addFilter($chain) {
+		if (empty($chain)) return false;
+		//var_dump($chain);
+		if ($this->current_model=$this->registry->users->checkAccess($chain['tbl'],$this->registry->{$chain['class']}->model[$chain['tbl']],'access_read')) {
+			$q = $this->getQuery(array(
+				'title'=>$this->current_model['title'],
+				'id'=>$this->current_model['id'],
+			),array(),$chain['tbl']);
+			$this->filters['id_'.$chain['tbl']] = array(
+				'value' => base::getvar($chain['id'].'_'.$chain['tbl'],0),
+				'title' => $chain['title'],
+				'values' => $this->registry->db->get_list($q,false,'id'),
+			);
+			//array_pop($this->filters['id_'.$chain['tbl']]['values'],array(0=>'Все'));
+		} else {
+			// return error to select
+		}
 	}
 	
 	function addCrumb($title='',$url='') {
