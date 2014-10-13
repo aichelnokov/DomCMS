@@ -125,14 +125,14 @@ class base {
 			'module_mode' => '/domcms/?module='.$this->module.'&mode='.$this->mode,
 			'tail' => '',
 		);
-		if ($this->modulesChain = $this->registry->modules->getModulesChain($this)) {
+		if ($this->modulesChain = $this->registry->modules->getModulesChain()) {
 			$this->addCrumb('DomCMS','/domcms/');
-			$this->fillCrumbs($this->modulesChain);
+			$this->fillCrumbs();
 		}
+		var_dump($this->modulesChain);
 			// fill $this->filters['id_parent_module']
 			// fill $this->id_parent_module
 			// add url_tail
-			// add crumbs
 		$this->title = $this->registry->db->get_single('SELECT DISTINCT title FROM modules WHERE class="'.$this->name.'" LIMIT 1');
 		return $this->registry->modules->allow($this);
 	}
@@ -183,7 +183,6 @@ class base {
 		if (empty($this->filters)) $this->filters = array();
 		if (isset($this->modulesChain['parents']))
 			$this->addFilter($this->modulesChain['parents']);
-		var_dump($this->filters);
 	}
 	
 	function addFilter($chain) {
@@ -213,9 +212,9 @@ class base {
 	}
 	
 	function fillCrumbs($chain=array()) {
-		if (empty($chain)) return false;
+		if (empty($chain)) $chain = $this->modulesChain;
 		if (!empty($chain['parents']))
-			$this->fillCrumbs($this->modulesChain['parents']);
+			$this->fillCrumbs($chain['parents']);
 		$this->addCrumb($chain['title'],'/domcms/?module='.$chain['class'].'&mode='.$chain['tbl']);
 	}
 	

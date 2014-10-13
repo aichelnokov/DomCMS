@@ -52,26 +52,40 @@ class modules extends base {
 			return (0<$objects=$this->registry->db->get_data("SELECT * FROM modules WHERE class='$class' AND tbl='$table' LIMIT 1",true,'tbl'))?$objects:false;
 	}
 	
+	function fillChainRelations(&$chain,$model) {
+		if (empty($chain['relations'])) $chain['relations'] = array();
+		if (empty($chain['link'])) $chain['link'] = array();
+		foreach ($model[$chain['tbl']] as $k => $v) {
+			if (empty($v['outer_keys'])) continue;
+			$relation_table = substr($v['outer_keys'],0,strpos($v['outer_keys'],'('));
+			if ($relation_table==$chain['tbl']) {
+				$chain['tree'] = $this->registry->modules->modulesRegistry[$relation_table];
+			} else {
+				if (preg_match('/ON DELETE SET NULL/',$v['outer_keys'])>0) {
+					$chain['link'][$k] = $this->registry->modules->modulesRegistry[$relation_table]; // просто отдельная связь
+				} elseif (preg_match('/ON DELETE CASCADE/',$v['outer_keys'])>0 AND preg_match('/'.$relation_table.'/',$chain['tbl'])==0) { // связь многая ко многим
+					$chain['relations'][$k] = $this->getModulesChainParents($chain,$model);
+				}
+			}
+		}
+	}
+	
 	function getModulesChainParents($chain,$model) {
 		$parents = array();
 		foreach ($model[$chain['tbl']] as $k => $v) {
-			if (!empty($v['outer_keys'])) {
-				if (preg_match('/'.$chain['tbl'].'\(/',$v['outer_keys'])>0) { // id_parent в этой же таблице
-					
-					continue;
-				}
-				$relation_table = substr($v['outer_keys'],0,strpos($v['outer_keys'],'('));
-				// if relation_table != current mode then relation many2many
+			if (empty($v['outer_keys'])) continue;
+			$relation_table = substr($v['outer_keys'],0,strpos($v['outer_keys'],'('));
+			if ($relation_table==$chain['tbl']) continue; // id_parent в этой же таблице
+			if (preg_match('/ON DELETE CASCADE/',$v['outer_keys'])>0 AND preg_match('/'.$relation_table.'/',$chain['tbl'])>0)
 				if (!empty($model[$relation_table])) {
 					$parents = $this->registry->modules->modulesRegistry[$relation_table];
 					$parents['parents'] = $this->getModulesChainParents($parents,$model);
 				}
-			}
 		}
 		return $parents;
 	}
 	
-	function getModulesChainChildrens($chain,$model) {
+	function getModulesChainChildren($chain,$model) {
 		$children = array();
 		foreach ($model as $k => $v) {
 			if ($k==$chain['tbl']) continue;
@@ -79,7 +93,7 @@ class modules extends base {
 				if (isset($v1['outer_keys'])) {
 					if (preg_match('/'.$chain['tbl'].'\(/',$v1['outer_keys'])>0) {
 						$children[$k] = $this->registry->modules->modulesRegistry[$k];
-						$children[$k]['children'] = $this->getModulesChainChildrens($children[$k],$model);
+						$children[$k]['children'] = $this->getModulesChainChildren($children[$k],$model);
 					}
 				}
 			}
@@ -87,18 +101,16 @@ class modules extends base {
 		return $children;
 	}
 	
-	function getModulesChain($domcms) {
+	function getModulesChain() {
+		$domcms = $this->registry->{$_SESSION['domcms']};
 		if (empty($domcms)) return false;
 		$chain = array();
 		foreach ($domcms->model as $k => $v) {
-			if ($k === $domcms->module && $domcms->module === $domcms->mode) {
+			if ($k === $domcms->mode) {
 				$chain = $this->registry->modules->modulesRegistry[$k];
-				$chain['children'] = $this->getModulesChainChildrens($chain,$domcms->model); // Возвращение цепочки с дочерними модулями
-				return $chain; // Сразу вернуть корневое звено
-			} elseif ($k === $domcms->mode) {
-				$chain = $this->registry->modules->modulesRegistry[$k];
-				$chain['children'] = $this->getModulesChainChildrens($chain,$domcms->model); // Возвращение цепочки с дочерними модулями
 				$chain['parents'] = $this->getModulesChainParents($chain,$domcms->model); // Возвращение цепочки с родительскими модулями
+				$chain['children'] = $this->getModulesChainChildren($chain,$domcms->model); // Возвращение цепочки с дочерними модулями
+				$this->fillChainRelations($chain,$domcms->model);
 			}
 		}
 		return $chain;

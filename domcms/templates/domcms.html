@@ -49,7 +49,7 @@
 					</li>
 				</ul>
 				<form class="navbar-form navbar-right" method="post" action="/domcms/" role="form">
-					Вы авторизованы как: <a href="/domcms/">{{ users.login }}</a> <button class="btn btn-danger" type="submit" name="signout" value="true"><span class="glyphicon glyphicon-off"></span> Выйти</button>
+					<span class="glyphicon glyphicon-user"></span> <a href="/domcms/">{{ users.login }}</a>&nbsp;&nbsp;&nbsp;<button class="btn btn-danger" type="submit" name="signout" value="true"><span class="glyphicon glyphicon-off"></span> Выйти</button>
 				</form>
 			</div>
 		</div>
@@ -90,6 +90,19 @@
 				{% endif %}
 				{% block buttons %}{% endblock %}
 			</div>
+			{% if domcms.filters|length>0 %}
+				<div class="col-md-3 col-xs-6">
+					{% for i,v in domcms.filters %}
+						{% if v.values is defined %}
+						<select name="i" id="i" class="selectpicker" data-live-search="true">
+							{% for j,k in v.values %}
+							<option{% if v.value==j %} selected="selected"{% endif %} value="{{ j }}">{{ k }}</option>
+							{% endfor %}
+						</select>
+						{% endif %}
+					{% endfor %}
+				</div>
+			{% endif %}
 		</div>
 		<div class="row">
 			{% block content %}{% endblock %}

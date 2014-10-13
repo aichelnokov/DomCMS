@@ -18,6 +18,7 @@ else {
 	// include class
 	if (file_exists(ROOT_DIR.'domcms/classes/'.$module.'.php')) {
 		require_once(ROOT_DIR.'domcms/classes/'.$module.'.php');
+		$_SESSION['domcms'] = $module;
 		$domcms = base::j($module,$module);
 		$domcms->domcms($module,$mode,$action);
 	}
