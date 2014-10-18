@@ -154,7 +154,7 @@ class modules extends base {
 	}
 	
 	function modules_fields_view() {
-		$this->addFilter($this->modulesChain['parents']);
+		$this->addFilter($this->modulesChain['parents'],false);
 		return parent::view();
 	}
 	

@@ -161,7 +161,7 @@ class base {
 		$this->addCrumb('Список элементов');
 		$this->current_model = $this->registry->users->checkAccess($this->mode,$this->model[$this->mode],'access_read');
 		if ($this->current_model['id']['access_write']==1) 
-			$this->addButton('Добавить',$this->url['add'],'plus-sign');
+			$this->addButton('Добавить',$this->url['add'].$this->url['tail'],'plus-sign');
 		$getParams = array();
 		foreach($this->filters as $k => $v)
 			if ($v['value']>0)
@@ -185,7 +185,12 @@ class base {
 			if ($all===true) {
 				$this->filters['id_'.$chain['tbl']]['values'][0] = 'Все';
 				ksort($this->filters['id_'.$chain['tbl']]['values']);
+			} else {
+				if ($this->filters['id_'.$chain['tbl']]['value']===0)
+					$this->filters['id_'.$chain['tbl']]['value'] = array_keys($this->filters['id_'.$chain['tbl']]['values'])[0];
 			}
+			if ($this->filters['id_'.$chain['tbl']]['value']!==0)
+				$this->addUrlTail('id_'.$chain['tbl'],$this->filters['id_'.$chain['tbl']]['value']);
 		} else {
 			// return error to select
 		}
@@ -235,6 +240,11 @@ class base {
 				'glyphicon' => $glyphicon,
 			);
 		}
+	}
+	
+	function addUrlTail($variable,$value) {
+		if (!preg_match('/'.$variable.'/',$this->url['tail']))
+			$this->url['tail'] .= '&'.$variable.'='.$value;
 	}
 	
 	// Static methods
