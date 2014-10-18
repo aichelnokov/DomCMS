@@ -115,8 +115,12 @@ class base {
 		if ($id=base::getvar('id','')) { $this->id = $id; unset($id); }
 		$this->page = base::getvar('page',1);
 		$this->count_on_page = 20;
-		$this->data = array();
+		$this->data = 
+		$this->buttons = 
+		$this->filters = 
+			array();
 		$this->url = array(
+			'children' => array(),
 			'photos' => '/domcms/?module='.$this->module.'&mode='.$this->name.'_photos&action=view&id_parent=%ID_PARENT%',
 			'add' => '/domcms/?module='.$this->module.'&mode='.$this->name.'&action=add'.(!empty($this->id_parent)?'&id_parent='.$this->id_parent:''),
 			'edit' => '/domcms/?module='.$this->module.'&mode='.$this->mode.'&action=edit&id=%ID%',
@@ -127,9 +131,9 @@ class base {
 		);
 		if ($this->modulesChain = $this->registry->modules->getModulesChain()) {
 			$this->addCrumb('DomCMS','/domcms/');
-			$this->fillCrumbs();
+			$this->addCrumbs();
 		}
-		var_dump($this->modulesChain);
+		//var_dump($this->modulesChain);
 			// fill $this->filters['id_parent_module']
 			// fill $this->id_parent_module
 			// add url_tail
@@ -154,51 +158,39 @@ class base {
 	
 	function view() {
 		$this->addCrumb('Список элементов');
-		$this->addFilters();
 		$this->current_model = $this->registry->users->checkAccess($this->mode,$this->model[$this->mode],'access_read');
 		if ($this->current_model['id']['access_write']==1) 
-			$this->addButtons('Добавить',$this->url['add'],'plus-sign');
+			$this->addButton('Добавить',$this->url['add'],'plus-sign');
 		if (!empty($this->modulesChain['children']))
 			foreach ($this->modulesChain['children'] as $k => $v) {
 				$this->modulesChain['children'][$k]['current_model'] = $this->registry->users->checkAccess($v['tbl'],$this->model[$v['tbl']],'access_read');
 				//if ($this->modulesChain['children'][$k]['current_model']['id']['access_read']==1) 
-					$this->addLinks($v['title'],'/domcms/?module='.$v['class'].'&mode='.$v['tbl'],'chevron-right');
+					$this->addLink($v['title'],'/domcms/?module='.$v['class'].'&mode='.$v['tbl']);
 			}
-		if ($this->module==$this->mode) {
-			foreach ($this->model as $k => $v) {
-				if ($k==$this->module) {
-					continue;
-				} else {
-					//$this->addLinks($k,$this->url['module'].'&mode='.$k,'chevron-right');
-				}
-			}
-			$this->data['list'] = $this->getObjects($this->mode,array(),'id');
-		} else {
-			$this->data['list'] = $this->getObjects($this->mode,array(),'id');
-		}
+		$getParams = array();
+		foreach($this->filters as $k => $v)
+			if ($v['value']>0)
+				$getParams = array_merge($getParams,array($k=>$v['value']));
+		$this->data['list'] = $this->getObjects($this->mode,$getParams,'id');
 		if (empty($this->registry->template->file)) $this->registry->template->file = 'view.html';
 	}
 	
-	function addFilters() {
-		if (empty($this->filters)) $this->filters = array();
-		if (isset($this->modulesChain['parents']))
-			$this->addFilter($this->modulesChain['parents']);
-	}
-	
-	function addFilter($chain) {
+	function addFilter($chain,$all=true) {
 		if (empty($chain)) return false;
-		//var_dump($chain);
 		if ($this->current_model=$this->registry->users->checkAccess($chain['tbl'],$this->registry->{$chain['class']}->model[$chain['tbl']],'access_read')) {
 			$q = $this->getQuery(array(
 				'title'=>$this->current_model['title'],
 				'id'=>$this->current_model['id'],
 			),array(),$chain['tbl']);
 			$this->filters['id_'.$chain['tbl']] = array(
-				'value' => base::getvar($chain['id'].'_'.$chain['tbl'],0),
+				'value' => base::getvar('id_'.$chain['tbl'],0),
 				'title' => $chain['title'],
 				'values' => $this->registry->db->get_list($q,false,'id'),
 			);
-			//array_pop($this->filters['id_'.$chain['tbl']]['values'],array(0=>'Все'));
+			if ($all===true) {
+				$this->filters['id_'.$chain['tbl']]['values'][0] = 'Все';
+				ksort($this->filters['id_'.$chain['tbl']]['values']);
+			}
 		} else {
 			// return error to select
 		}
@@ -211,10 +203,10 @@ class base {
 		return true;
 	}
 	
-	function fillCrumbs($chain=array()) {
+	function addCrumbs($chain=array()) {
 		if (empty($chain)) $chain = $this->modulesChain;
 		if (!empty($chain['parents']))
-			$this->fillCrumbs($chain['parents']);
+			$this->addCrumbs($chain['parents']);
 		$this->addCrumb($chain['title'],'/domcms/?module='.$chain['class'].'&mode='.$chain['tbl']);
 	}
 	
@@ -224,14 +216,24 @@ class base {
 		$_SESSION['messages'][] = array('message'=>$message,'status'=>$status,'time'=>date('d-m-Y H:i',time()));
 	}
 	
-	function addButtons($title='',$url='',$glyphicon='',$direction='float-left') {
-		if (empty($this->buttons)) $this->buttons = array();
-		$this->buttons[] = array('title'=>$title, 'url'=>$url, 'glyphicon'=>$glyphicon,'direction'=>$direction);
+	function addButton($title='',$url='',$glyphicon='') {
+		$this->buttons[] = array('title'=>$title, 'url'=>$url, 'glyphicon'=>$glyphicon);
 	}
 	
-	function addLinks($title='',$url='',$glyphicon='',$direction='float-left') {
+	function addListButton(&$chain,$url='',$glyphicon='glyphicon-list') {
+		if (empty($chain)) return false;
+		if ($chain['current_model']=$this->registry->users->checkAccess($chain['tbl'],$this->registry->{$chain['class']}->model[$chain['tbl']],'access_read')) {
+			$this->url['children'][] = array(
+				'title' => $chain['title'],
+				'url' => '/domcms/?module='.$chain['class'].'&mode='.$chain['tbl'].'&action=view&id_'.$this->mode.'=%ID_PARENT%',
+				'glyphicon' => $glyphicon,
+			);
+		}
+	}
+	
+	function addLink($title='',$url='',$glyphicon='chevron-right') {
 		if (empty($this->links)) $this->links = array();
-		$this->links[] = array('title'=>$title, 'url'=>$url, 'glyphicon'=>$glyphicon,'direction'=>$direction);
+		$this->links[] = array('title'=>$title, 'url'=>$url, 'glyphicon'=>$glyphicon);
 	}
 	
 	// Static methods

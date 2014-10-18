@@ -307,7 +307,7 @@ class db_mysqli extends base {
 	
 	function complianceTable($table,$fields) {
 		if (empty($table) or empty($fields)) return false;
-		$original_fields = $this->get_list('SHOW COLUMNS FROM '.$table);
+		$original_fields = $this->get_list('DESCRIBE '.$table);
 		$alter_definition = '';
 		$alter_fields = array();
 		foreach ($fields as $k => $v) {

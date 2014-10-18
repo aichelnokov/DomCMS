@@ -74,35 +74,39 @@
 			</div>
 		</div>
 		<div class="row">
-			<div class="col-md-8 col-xs-12">
+			<div class="col-md-12 col-xs-12">
+				{% block links %}
 				{% if domcms.links|length>0 %}
 					{% for i in domcms.links %}
 						<h4><a href="{{ i.url }}">{% if i.glyphicon is not empty %}<span class="glyphicon glyphicon-{{ i.glyphicon }}"></span> {% endif %}{{ i.title|capitalize }}</a></h4>
 					{% endfor %}
 				{% endif %}
-				{% block links %}{% endblock %}
+				{% endblock %}
 			</div>
-			<div class="col-md-4 col-xs-12 text-right">
-				{% if domcms.buttons|length>0 %}
-					{% for i in domcms.buttons %}
-						<a class="btn btn-default" href="{{ i.url }}">{% if i.glyphicon is not empty %}<span class="glyphicon glyphicon-{{ i.glyphicon }}"></span> {% endif %}{{ i.title }}</a>
-					{% endfor %}
-				{% endif %}
-				{% block buttons %}{% endblock %}
-			</div>
-			{% if domcms.filters|length>0 %}
-				<div class="col-md-3 col-xs-6">
+			<div class="col-md-8 col-xs-6">
+				{% block filters %}
+				{% if domcms.filters|length>0 %}
 					{% for i,v in domcms.filters %}
 						{% if v.values is defined %}
-						<select name="i" id="i" class="selectpicker" data-live-search="true">
+						<select name="{{ i }}" id="{{ i }}" class="selectpicker" data-live-search="true">
 							{% for j,k in v.values %}
 							<option{% if v.value==j %} selected="selected"{% endif %} value="{{ j }}">{{ k }}</option>
 							{% endfor %}
 						</select>
 						{% endif %}
 					{% endfor %}
-				</div>
-			{% endif %}
+				{% endif %}
+				{% endblock %}
+			</div>
+			<div class="col-md-4 col-xs-6 text-right">
+				{% block buttons %}
+				{% if domcms.buttons|length>0 %}
+					{% for i in domcms.buttons %}
+						<a class="btn btn-default" href="{{ i.url }}">{% if i.glyphicon is not empty %}<span class="glyphicon glyphicon-{{ i.glyphicon }}"></span> {% endif %}{{ i.title }}</a>
+					{% endfor %}
+				{% endif %}
+				{% endblock %}
+			</div>
 		</div>
 		<div class="row">
 			{% block content %}{% endblock %}
