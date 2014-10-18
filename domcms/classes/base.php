@@ -120,7 +120,8 @@ class base {
 		$this->filters = 
 			array();
 		$this->url = array(
-			'children' => array(),
+			'links' => array(),
+			'listButtons' => array(),
 			'photos' => '/domcms/?module='.$this->module.'&mode='.$this->name.'_photos&action=view&id_parent=%ID_PARENT%',
 			'add' => '/domcms/?module='.$this->module.'&mode='.$this->name.'&action=add'.(!empty($this->id_parent)?'&id_parent='.$this->id_parent:''),
 			'edit' => '/domcms/?module='.$this->module.'&mode='.$this->mode.'&action=edit&id=%ID%',
@@ -161,12 +162,6 @@ class base {
 		$this->current_model = $this->registry->users->checkAccess($this->mode,$this->model[$this->mode],'access_read');
 		if ($this->current_model['id']['access_write']==1) 
 			$this->addButton('Добавить',$this->url['add'],'plus-sign');
-		if (!empty($this->modulesChain['children']))
-			foreach ($this->modulesChain['children'] as $k => $v) {
-				$this->modulesChain['children'][$k]['current_model'] = $this->registry->users->checkAccess($v['tbl'],$this->model[$v['tbl']],'access_read');
-				//if ($this->modulesChain['children'][$k]['current_model']['id']['access_read']==1) 
-					$this->addLink($v['title'],'/domcms/?module='.$v['class'].'&mode='.$v['tbl']);
-			}
 		$getParams = array();
 		foreach($this->filters as $k => $v)
 			if ($v['value']>0)
@@ -220,10 +215,10 @@ class base {
 		$this->buttons[] = array('title'=>$title, 'url'=>$url, 'glyphicon'=>$glyphicon);
 	}
 	
-	function addListButton(&$chain,$url='',$glyphicon='glyphicon-list') {
+	function addListButton(&$chain,$glyphicon='glyphicon-list') {
 		if (empty($chain)) return false;
 		if ($chain['current_model']=$this->registry->users->checkAccess($chain['tbl'],$this->registry->{$chain['class']}->model[$chain['tbl']],'access_read')) {
-			$this->url['children'][] = array(
+			$this->url['listButtons'][] = array(
 				'title' => $chain['title'],
 				'url' => '/domcms/?module='.$chain['class'].'&mode='.$chain['tbl'].'&action=view&id_'.$this->mode.'=%ID_PARENT%',
 				'glyphicon' => $glyphicon,
@@ -231,9 +226,15 @@ class base {
 		}
 	}
 	
-	function addLink($title='',$url='',$glyphicon='chevron-right') {
-		if (empty($this->links)) $this->links = array();
-		$this->links[] = array('title'=>$title, 'url'=>$url, 'glyphicon'=>$glyphicon);
+	function addLink(&$chain='',$glyphicon='chevron-right') {
+		if (empty($chain)) return false;
+		if ($chain['current_model']=$this->registry->users->checkAccess($chain['tbl'],$this->registry->{$chain['class']}->model[$chain['tbl']],'access_read')) {
+			$this->url['links'][] = array(
+				'title' => $chain['title'],
+				'url' => '/domcms/?module='.$chain['class'].'&mode='.$chain['tbl'],
+				'glyphicon' => $glyphicon,
+			);
+		}
 	}
 	
 	// Static methods

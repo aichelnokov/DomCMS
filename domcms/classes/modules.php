@@ -165,6 +165,7 @@ class modules extends base {
 	function modules_view() {
 		$this->pagination = false;
 		$this->sortable = false;
+		$this->addLink($this->modulesChain['children']['modules_menus']);
 		$this->addListButton($this->modulesChain['children']['modules_fields']);
 		return parent::view();
 	}

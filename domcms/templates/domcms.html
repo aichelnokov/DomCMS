@@ -76,8 +76,8 @@
 		<div class="row">
 			<div class="col-md-12 col-xs-12">
 				{% block links %}
-				{% if domcms.links|length>0 %}
-					{% for i in domcms.links %}
+				{% if domcms.url.links|length>0 %}
+					{% for i in domcms.url.links %}
 						<h4><a href="{{ i.url }}">{% if i.glyphicon is not empty %}<span class="glyphicon glyphicon-{{ i.glyphicon }}"></span> {% endif %}{{ i.title|capitalize }}</a></h4>
 					{% endfor %}
 				{% endif %}
