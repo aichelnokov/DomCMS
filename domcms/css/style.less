@@ -1,14 +1,14 @@
 // global rules
 body { padding-top:51px; font-size:14px; line-height:16px; overflow-y:scroll; }
 form { margin-bottom:0px; }
-.bootstrap-select:not([class*=col-]):not([class*=form-control]):not(.input-group-btn) { width:100%; }
+.bootstrap-select:not([class*=col-]):not([class*=form-control]):not(.input-group-btn) { width:auto; min-width:15em; }
 .row { margin-bottom:20px; }
 .float-right { float:right; }
 .float-left { float:left; }
 .text-right { text-align:right; }
 .text-left { text-align:left; }
 .text-justify { text-align:fustify; }
-
+sup, sub { letter-spacing:1px; }
 #menu {
 	.navbar-form { color:#eee; }
 }
@@ -32,6 +32,13 @@ form { margin-bottom:0px; }
 				&:hover { background-color:rgba(0,0,0,0.02); }
 			}
 		}
+	}
+	#links {}
+	#filters {
+		input[type=text] { display:inline-block; width:auto; vertical-align:middle; }
+	}
+	#edit {
+		.bootstrap-select:not([class*=col-]):not([class*=form-control]):not(.input-group-btn) { width:100%; }
 	}
 }
 #footer {

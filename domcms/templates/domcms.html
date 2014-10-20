@@ -1,3 +1,4 @@
+{% import "macros.html" as macros %}
 <html lang="ru">
 <head>
 	<meta http-equiv="Content-type" content="text/html; charset=utf-8">
@@ -16,6 +17,10 @@
 	<script src="/domcms/js/bootstrap-select.min.js"></script>
 	<script src="/domcms/js/bootstrap-wysiwyg.min.js"></script>
 	<script src="/domcms/js/bootstrap-tooltips.min.js"></script>
+	<script>
+		domcms = new Object();
+		domcms.url = {{ domcms.url_encoded }};
+	</script>
 	<script src="/domcms/js/scripts.js"></script>
 	{% block head %}{% endblock %}
 </head>
@@ -67,14 +72,14 @@
 			<div class="col-md-8 col-xs-12">
 				<h1>{{ domcms.modulesChain.title|capitalize }}</h1>
 			</div>
-			<div class="col-md-4 col-xs-12">
+			<div class="col-md-4 col-xs-12" id="messages">
 				{% for k,i in messages if messages is defined %}
-					<div class="alert alert-{{ i.status }}"><span class="glyphicon glyphicon-ok-sign"></span> <strong>{{ i.message }}</strong><div class="text-right">{{ i.time }}</div></div>
+					<div class="alert alert-{{ i.status }}"><span class="glyphicon glyphicon-ok-sign"></span> <strong>{{ i.message }}</strong> {{ i.time }}</div>
 				{% endfor %}
 			</div>
 		</div>
 		<div class="row">
-			<div class="col-md-12 col-xs-12">
+			<div class="col-md-12 col-xs-12" id="links">
 				{% block links %}
 				{% if domcms.url.links|length>0 %}
 					{% for i in domcms.url.links %}
@@ -83,18 +88,23 @@
 				{% endif %}
 				{% endblock %}
 			</div>
-			<div class="col-md-8 col-xs-6">
+			<div class="col-md-8 col-xs-6" id="filters">
 				{% block filters %}
 				{% if domcms.filters|length>0 %}
 					{% for i,v in domcms.filters %}
 						{% if v.values is defined %}
-						<select name="{{ i }}" id="{{ i }}" class="selectpicker" data-live-search="true">
+						<select name="{{ i }}" id="{{ i }}" class="selectpicker filter" data-live-search="true">
 							{% for j,k in v.values %}
 							<option{% if v.value==j %} selected="selected"{% endif %} value="{{ j }}">{{ k }}</option>
 							{% endfor %}
 						</select>
 						{% endif %}
 					{% endfor %}
+					<!--input type="text" class="form-control filter" id="countOnPage" name="countOnPage"-->
+					<div class="btn-group">
+						<button type="button" id="filter_clear" class="btn btn-info">Очистить</button>
+						<button type="button" id="filter_accept" class="btn btn-primary">Применить</button>
+					</div>
 				{% endif %}
 				{% endblock %}
 			</div>

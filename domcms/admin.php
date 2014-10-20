@@ -28,6 +28,7 @@ else {
 		foreach ($_SESSION['messages'] as $k => $v) 
 			$template->messages[] = array_shift($_SESSION['messages']);
 	}
+	$domcms->url_encoded = json_encode($domcms->url);
 	$template->domcms = $domcms;
 }
 $template->users = $users;

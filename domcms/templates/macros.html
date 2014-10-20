@@ -1,23 +1,32 @@
 {% macro get_input(field,value,domcms) %}
 	{% if domcms.current_model[field].access_write==1 and 'AUTO_INCREMENT' not in domcms.current_model[field].flags %}
-		<h6>{{ field }}</h6>
+		<h6>{{ domcms.current_model[field].title|capitalize }}</h6> 
 		{% if domcms.current_model[field]['type']=='VARCHAR(255)' %}
 			<input type="text" class="form-control" id="{{ field }}" name="{{ field }}" value="{{ value }}">
 		{% endif %}
 	{% else %}
-		<div class="panel panel-default">
-			<div class="panel-body">
-				<h6>{{ field|capitalize }} 
-					<span class="label label-default">{{ value }}</span>
-					<span class="label label-warning"><span class="glyphicon glyphicon-info-sign"></span> {{ domcms.current_model[field].type }}</span>
-					<span class="label label-info"><span class="glyphicon glyphicon-question-sign"></span> {{ domcms.current_model[field].flags|replace({
-						'AUTO_INCREMENT':'A_I',
-						'NOT NULL':'<s>NULL</s>',
-					}) }}</span>
-				</h6>
-			</div>
-		</div>
+		{{ _self.view_field(field,value,domcms) }}
 	{% endif %}
+{% endmacro %}
+
+{% macro get_select(field,value,domcms) %}
+	<h6>{{ domcms.current_model[field].title|capitalize }}</h6>
+	<select name="{{ field }}" id="{{ field }}" class="selectpicker filter" data-live-search="true" {% if domcms.current_model[field].access_write!=1 %}disabled="disabled"{% endif %}>
+		{% for i,j in domcms.filters[field]['values'] %}
+		<option{% if value==i %} selected="selected"{% endif %} value="{{ i }}">{{ j }}</option>
+		{% endfor %}
+	</select>
+{% endmacro %}
+
+{% macro view_field(field,value,domcms) %}
+	<h6>{{ field|capitalize }} 
+		<span class="label label-default">{{ value }}</span>
+		<span class="label label-warning"><span class="glyphicon glyphicon-info-sign"></span> {{ domcms.current_model[field].type }}</span>
+		<span class="label label-info"><span class="glyphicon glyphicon-question-sign"></span> {{ domcms.current_model[field].flags|replace({
+			'AUTO_INCREMENT':'A_I',
+			'NOT NULL':'<s>NULL</s>',
+		}) }}</span>
+	</h6>
 {% endmacro %}
 
 {% macro nested_list(list,domcms,users) %}
@@ -25,7 +34,7 @@
 		{% for i in domcms.data.list %}
 		<li class="list-group-item">
 			<div class="nested_li">
-				{% if i.title is defined %}<a href="{% if users.access[domcms.mode]['id']['access_write']!=0 %}{{ domcms.url.edit|replace({'%ID%':i.id}) }}{% else %}#{% endif %}">{{ i.title }}</a>{% endif %}
+				{% if i.title is defined %}<a href="{% if users.access[domcms.mode]['id']['access_read']!=0 %}{{ domcms.url.edit|replace({'%ID%':i.id}) }}{% else %}#{% endif %}">{{ i.title }}</a>{% endif %}
 				{% if i.url is defined %}<span class="label label-default">{{ i.url }}</span>{% endif %}
 				<div class="btn-toolbar">
 					{% if domcms.url.listButtons|length>0 %}
@@ -50,7 +59,7 @@
 					</div>
 					{% endif %}
 					<div class="btn-group">
-						<a href="{{ domcms.url.edit|replace({'%ID%':i.id}) }}" class="btn btn-default{% if users.access[domcms.mode]['id']['access_write']==0 %} disabled{% endif %}"><span class="glyphicon glyphicon-pencil"></span></a>
+						<a href="{{ domcms.url.edit|replace({'%ID%':i.id}) }}" class="btn btn-warning{% if users.access[domcms.mode]['id']['access_write']==0 %} disabled{% endif %}"><span class="glyphicon glyphicon-pencil"></span></a>
 						<a href="{{ domcms.url.delete|replace({'%ID%':i.id}) }}" class="btn btn-danger{% if users.access[domcms.mode]['id']['access_delete']==0 %} disabled{% endif %}"><span class="glyphicon glyphicon-trash"></span></a>
 					</div>
 				</div>

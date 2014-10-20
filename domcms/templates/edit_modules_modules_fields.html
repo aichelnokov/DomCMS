@@ -8,21 +8,21 @@
 		<div class="panel-heading"><h3 class="panel-title">Редактирование</h3></div>
 		<div class="panel-body">
 			{{ macros.get_input('title',domcms.data.item.title,domcms) }}
-			{{ macros.get_input('class',domcms.data.item.class,domcms) }}
-			{{ macros.get_input('tbl',domcms.data.item.tbl,domcms) }}
+			{{ macros.get_input('name',domcms.data.item.name,domcms) }}
 		</div>
 	</div>
 
 {% endblock %}
 
 {% block col_2 %}
+			
+	{% import "macros.html" as macros %}
 	
 	<div class="panel panel-default">
 		<div class="panel-heading"><h3 class="panel-title">Параметры элемента</h3></div>
 		<div class="panel-body">
-			{% import "macros.html" as macros %}
 			{{ macros.get_input('id',domcms.data.item.id,domcms) }}
-			{{ macros.get_input('controls_view',domcms.data.item.controls_view,domcms) }}
+			{{ macros.get_select('id_modules',domcms.data.item.id_modules,domcms) }}
 		</div>
 	</div>
 	

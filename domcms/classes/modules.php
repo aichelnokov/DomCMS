@@ -22,11 +22,10 @@ class modules extends base {
 		),
 		'modules_menus' => array(
 			'id' => array('type'=>'INT(255)','flags'=>'UNSIGNED NOT NULL AUTO_INCREMENT','inner_keys'=>'PRIMARY'),
-			'id_parent' => array('type'=>'INT(255)','flags'=>'UNSIGNED NOT NULL','outer_keys'=>'modules_menus(id) ON UPDATE CASCADE ON DELETE CASCADE'),
-			'id_modules' => array('type'=>'INT(255)','default'=>0,'flags'=>'UNSIGNED','outer_keys'=>'modules(id) ON UPDATE CASCADE ON DELETE CASCADE'),
+			'id_modules_menus' => array('type'=>'INT(255)','flags'=>'UNSIGNED NOT NULL','outer_keys'=>'modules_menus(id) ON UPDATE CASCADE ON DELETE CASCADE'),
+			'id_modules' => array('type'=>'INT(255)','flags'=>'UNSIGNED','outer_keys'=>'modules(id) ON UPDATE CASCADE ON DELETE CASCADE'),
 			'title' => array('type'=>'VARCHAR(255)','default'=>''),
-			'mode' => array('type'=>'VARCHAR(255)','default'=>''),
-			'action' => array('type'=>'VARCHAR(255)','default'=>''),
+			'act' => array('type'=>'VARCHAR(255)','default'=>''),
 			'sort' => array('type'=>'INT(255)','default'=>0,'flags'=>'UNSIGNED NOT NULL'),
 		),
 	);

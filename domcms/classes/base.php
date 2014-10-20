@@ -49,6 +49,24 @@ class base {
 		else return false;
 	}
 	
+	function addObject($component) {
+		if ($this->current_model=$this->registry->users->checkAccess($this->mode,$this->model[$component],'access_write')) {
+			$this->current_model = array_intersect_key($this->current_model,$_POST);
+			$this->edit_data = array();
+			foreach ($this->current_model as $k => $v) {
+				$this->edit_data[$k] = base::getvar($k,'');
+				if (empty($this->edit_data[$k]))
+					if (!isset($v['default']))
+						unset($this->edit_data[$k]);
+			}
+			$this->registry->db->insert($this->mode,$this->edit_data);
+			unset($this->edit_data);
+			$this->id = $this->registry->db->insert_id();
+			$this->addMessage('Запись добавлена','success');
+			return true;
+		}
+	}
+	
 	function updateObject($component) {
 		if ($this->current_model=$this->registry->users->checkAccess($this->mode,$this->model[$component],'access_write')) {
 			$this->current_model = array_intersect_key($this->current_model,$_POST);
@@ -58,7 +76,7 @@ class base {
 			}
 			$this->registry->db->update($this->mode,$this->edit_data,'id='.$this->id);
 			unset($this->edit_data);
-			$this->addMessage('Запись успешно обновлена','success');
+			$this->addMessage('Запись обновлена','success');
 			return true;
 		}
 	}
@@ -71,14 +89,31 @@ class base {
 		return $q;
 	}
 	
+	function getEmptyObject($model=array()) {
+		if (empty($model)) return $model;
+		$ret = array();
+		foreach ($model as $k => $v) {
+			if (isset($v['default'])) {
+				$ret[] = $v['default'];
+			}
+		}
+		return $ret;
+	}
+	
 	function getObject($component) {
 		if (empty($component)) return false;
 		if ($this->current_model=$this->registry->users->checkAccess($this->mode,$this->model[$component],'access_read')) {
+			if (!empty($this->modulesChain['tree']))
+				$this->addFilter($this->modulesChain['tree'],true);
 			foreach ($this->current_model as $k => $v) 
-				if (preg_match('/id_/',$k)>0) echo 'Получите пожалуйста список возможных родителей<br>';
-			$q = $this->getQuery($this->current_model,array('id'=>$this->id));
-			$q .= ' LIMIT 1';
-			return $this->registry->db->get_data($q,false);
+				if (preg_match('/id_/',$k)>0) 
+					$this->addFilter($this->registry->modules->modulesRegistry[strtr($k,array('id_'=>''))],true);
+			if (!empty($this->id)) {
+				$q = $this->getQuery($this->current_model,array('id'=>$this->id));
+				$q .= ' LIMIT 1';
+				return $this->registry->db->get_data($q,false);
+			} else
+				return $this->getEmptyObject($this->current_model);
 		} // else return false
 	}
 	
@@ -122,8 +157,8 @@ class base {
 		$this->url = array(
 			'links' => array(),
 			'listButtons' => array(),
-			'photos' => '/domcms/?module='.$this->module.'&mode='.$this->name.'_photos&action=view&id_parent=%ID_PARENT%',
-			'add' => '/domcms/?module='.$this->module.'&mode='.$this->name.'&action=add'.(!empty($this->id_parent)?'&id_parent='.$this->id_parent:''),
+			//'photos' => '/domcms/?module='.$this->module.'&mode='.$this->mode.'_photos&action=view&id_parent=%ID_PARENT%',
+			'add' => '/domcms/?module='.$this->module.'&mode='.$this->mode.'&action=add'.(!empty($this->id_parent)?'&id_parent='.$this->id_parent:''),
 			'edit' => '/domcms/?module='.$this->module.'&mode='.$this->mode.'&action=edit&id=%ID%',
 			'delete' => '/domcms/?module='.$this->module.'&mode='.$this->mode.'&action=delete&id=%ID%',
 			'module' => '/domcms/?module='.$this->module,
@@ -134,23 +169,16 @@ class base {
 			$this->addCrumb('DomCMS','/domcms/');
 			$this->addCrumbs();
 		}
-		//var_dump($this->modulesChain);
-			// fill $this->filters['id_parent_module']
-			// fill $this->id_parent_module
-			// add url_tail
 		$this->title = $this->registry->db->get_single('SELECT DISTINCT title FROM modules WHERE class="'.$this->name.'" LIMIT 1');
 		return $this->registry->modules->allow($this);
 	}
 	
 	function edit($add=false) {
 		if ($submit=base::getvar('form_submit','')) {
-			if ($add) 
-				// добавление объекта, добавление сообщения и редирект %)
-				$this->addObject($this->mode);
-			else
-				$this->updateObject($this->mode);
-		}
-		$this->data['item'] = $this->getObject($this->mode);
+			if (true === $add ? $this->addObject($this->mode) : $this->updateObject($this->mode)) 
+				base::redirect(strtr($this->url['edit'],array('%ID%'=>$this->id)));
+		} else 
+			$this->data['item'] = $this->getObject($this->mode);
 		$this->addCrumb((!empty($this->data['item']['title'])?'Просмотр элемента &laquo;'.$this->data['item']['title'].'&raquo;':'Просмотр элемента'));
 		if (empty($this->registry->template->file)) $this->registry->template->file = 'edit_'.$this->name.'_'.$this->mode.'.html';
 	}
@@ -170,12 +198,12 @@ class base {
 		if (empty($this->registry->template->file)) $this->registry->template->file = 'view.html';
 	}
 	
-	function addFilter($chain,$all=true) {
+	function addFilter(&$chain,$all=true) {
 		if (empty($chain)) return false;
-		if ($this->current_model=$this->registry->users->checkAccess($chain['tbl'],$this->registry->{$chain['class']}->model[$chain['tbl']],'access_read')) {
+		if ($current_model=$this->registry->users->checkAccess($chain['tbl'],$this->registry->{$chain['class']}->model[$chain['tbl']],'access_read')) {
 			$q = $this->getQuery(array(
-				'title'=>$this->current_model['title'],
-				'id'=>$this->current_model['id'],
+				'title'=>$current_model['title'],
+				'id'=>$current_model['id'],
 			),array(),$chain['tbl']);
 			$this->filters['id_'.$chain['tbl']] = array(
 				'value' => base::getvar('id_'.$chain['tbl'],0),
@@ -183,7 +211,7 @@ class base {
 				'values' => $this->registry->db->get_list($q,false,'id'),
 			);
 			if ($all===true) {
-				$this->filters['id_'.$chain['tbl']]['values'][0] = 'Все';
+				$this->filters['id_'.$chain['tbl']]['values'][0] = '-';
 				ksort($this->filters['id_'.$chain['tbl']]['values']);
 			} else {
 				if ($this->filters['id_'.$chain['tbl']]['value']===0)
@@ -213,7 +241,7 @@ class base {
 	function addMessage($message='',$status='info') {
 		if (empty($message)) return false;
 		if (empty($_SESSION['messages'])) $_SESSION['messages'] = array();
-		$_SESSION['messages'][] = array('message'=>$message,'status'=>$status,'time'=>date('d-m-Y H:i',time()));
+		$_SESSION['messages'][] = array('message'=>$message,'status'=>$status,'time'=>date('d.m.Y H:i',time()));
 	}
 	
 	function addButton($title='',$url='',$glyphicon='') {
