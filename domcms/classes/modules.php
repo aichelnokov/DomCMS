@@ -157,13 +157,17 @@ class modules extends base {
 		return parent::view();
 	}
 	
+	function modules_menus_view() {
+		$this->sortable = 'sort';
+		return parent::view();
+	}
+	
 	function modules_edit($add=false) {
 		return parent::edit($add);
 	}
 	
 	function modules_view() {
 		$this->pagination = false;
-		$this->sortable = false;
 		$this->addLink($this->modulesChain['children']['modules_menus']);
 		$this->addListButton($this->modulesChain['children']['modules_fields']);
 		return parent::view();

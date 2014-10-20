@@ -5,6 +5,7 @@ if(!defined('IN_SITE')) exit;
 class base {
 
 	public $name='';//Имя модуля
+	public $cache='';//Кэш
 	protected $registry=null;	//Реестр объектов для ускорения доступа
 	
 	// Конструктор, создает новый объект, устанавливает его настройки и режим работы
@@ -44,10 +45,10 @@ class base {
 	}
 	
 	// Если существует метод get{name} вызываем его и возвращаем результат иначе возвращает false
-	function __get($name) {
+	/*function __get($name) {
 		if(method_exists($this,'get'.$name)) return $this->{'get'.$name}(); 
 		else return false;
-	}
+	}*/
 	
 	function addObject($component) {
 		if ($this->current_model=$this->registry->users->checkAccess($this->mode,$this->model[$component],'access_write')) {
@@ -128,6 +129,27 @@ class base {
 		}
 	}
 	
+	function getObjectsRecursive($component='',$params=array(),$order='',$current_model=array()) {
+		if (empty($component)) return false;
+		if (empty($current_model))
+			$current_model = $this->registry->users->checkAccess($this->mode,$this->model[$component],'access_read');
+		if (!empty($current_model)) {
+			$q = $this->getQuery($this->current_model,$params);
+			if (empty($params['id_'.$component])) {
+				$q = strtr($q,array('=NULL'=>' IS NULL'));
+			}
+			if ($order!='') $q .= ' ORDER BY '.$order;
+			$ret = $this->registry->db->get_data($q);
+			foreach ($ret as $k => $v) {
+				$params['id_'.$component] = $v['id'];
+				$ret[$k]['children'] = $this->getObjectsRecursive($component,$params,$order,$current_model);
+			}
+			return $ret;
+		} else {
+			// return error access to this mode
+		}
+	}
+	
 	// Проверяет в базе корректность таблиц моделей объекта (все модули)
 	function checkModel() {
 		if (empty($this->model)) return true;
@@ -150,6 +172,7 @@ class base {
 		if ($id=base::getvar('id','')) { $this->id = $id; unset($id); }
 		$this->page = base::getvar('page',1);
 		$this->count_on_page = 20;
+		$this->sortable = '';
 		$this->data = 
 		$this->buttons = 
 		$this->filters = 
@@ -158,7 +181,7 @@ class base {
 			'links' => array(),
 			'listButtons' => array(),
 			//'photos' => '/domcms/?module='.$this->module.'&mode='.$this->mode.'_photos&action=view&id_parent=%ID_PARENT%',
-			'add' => '/domcms/?module='.$this->module.'&mode='.$this->mode.'&action=add'.(!empty($this->id_parent)?'&id_parent='.$this->id_parent:''),
+			'add' => '/domcms/?module='.$this->module.'&mode='.$this->mode.'&action=add',
 			'edit' => '/domcms/?module='.$this->module.'&mode='.$this->mode.'&action=edit&id=%ID%',
 			'delete' => '/domcms/?module='.$this->module.'&mode='.$this->mode.'&action=delete&id=%ID%',
 			'module' => '/domcms/?module='.$this->module,
@@ -166,6 +189,8 @@ class base {
 			'tail' => '',
 		);
 		if ($this->modulesChain = $this->registry->modules->getModulesChain()) {
+			if (!empty($this->modulesChain['tree']))
+				$this->url['add_children'] = $this->url['add'].'&id_'.$this->mode.'=%ID_PARENT%';
 			$this->addCrumb('DomCMS','/domcms/');
 			$this->addCrumbs();
 		}
@@ -189,12 +214,17 @@ class base {
 		$this->addCrumb('Список элементов');
 		$this->current_model = $this->registry->users->checkAccess($this->mode,$this->model[$this->mode],'access_read');
 		if ($this->current_model['id']['access_write']==1) 
-			$this->addButton('Добавить',$this->url['add'].$this->url['tail'],'plus-sign');
-		$getParams = array();
+			$this->addButton('Добавить',$this->url['add'].$this->url['tail'],'plus-sign','btn-primary');
+		$params = array();
 		foreach($this->filters as $k => $v)
 			if ($v['value']>0)
-				$getParams = array_merge($getParams,array($k=>$v['value']));
-		$this->data['list'] = $this->getObjects($this->mode,$getParams,'id');
+				$params = array_merge($params,array($k=>$v['value']));
+		if (empty($this->modulesChain['tree']))
+			$this->data['list'] = $this->getObjects($this->mode,$params,$this->sortable);
+		else {
+			$params['id_'.$this->mode] = NULL;
+			$this->data['list'] = $this->getObjectsRecursive($this->mode,$params,$this->sortable);
+		}
 		if (empty($this->registry->template->file)) $this->registry->template->file = 'view.html';
 	}
 	
@@ -244,8 +274,8 @@ class base {
 		$_SESSION['messages'][] = array('message'=>$message,'status'=>$status,'time'=>date('d.m.Y H:i',time()));
 	}
 	
-	function addButton($title='',$url='',$glyphicon='') {
-		$this->buttons[] = array('title'=>$title, 'url'=>$url, 'glyphicon'=>$glyphicon);
+	function addButton($title='',$url='',$glyphicon='',$type='btn-default') {
+		$this->buttons[] = array('title'=>$title, 'url'=>$url, 'glyphicon'=>$glyphicon, 'type'=>$type);
 	}
 	
 	function addListButton(&$chain,$glyphicon='glyphicon-list') {

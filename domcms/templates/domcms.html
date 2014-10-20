@@ -112,7 +112,7 @@
 				{% block buttons %}
 				{% if domcms.buttons|length>0 %}
 					{% for i in domcms.buttons %}
-						<a class="btn btn-default" href="{{ i.url }}">{% if i.glyphicon is not empty %}<span class="glyphicon glyphicon-{{ i.glyphicon }}"></span> {% endif %}{{ i.title }}</a>
+						<a class="btn {{ i.type }}" href="{{ i.url }}">{% if i.glyphicon is not empty %}<span class="glyphicon glyphicon-{{ i.glyphicon }}"></span> {% endif %}{{ i.title }}</a>
 					{% endfor %}
 				{% endif %}
 				{% endblock %}
