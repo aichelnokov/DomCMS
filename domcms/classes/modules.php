@@ -30,8 +30,13 @@ class modules extends base {
 		),
 	);
 	
-	function init() {
+	function getModulesRegistry() {
 		$this->modulesRegistry = $this->registry->db->get_data('SELECT m.id, m.title, m.class, m.controls_view, m.tbl, m.tbl as k FROM modules AS m',true,'k');
+		return true;
+	}
+	
+	function init() {
+		$this->getModulesRegistry();
 		return parent::init();
 	}
 	
@@ -65,6 +70,7 @@ class modules extends base {
 			$relation_table = substr($v['outer_keys'],0,strpos($v['outer_keys'],'('));
 			if ($relation_table==$chain['tbl']) {
 				$chain['tree'] = $this->modulesRegistry[$relation_table];
+				$chain['tree']['tree'] = $this->modulesRegistry[$relation_table];
 			} else {
 				if (preg_match('/ON DELETE SET NULL/',$v['outer_keys'])>0) {
 					$chain['link'][$k] = $this->modulesRegistry[$relation_table]; // просто отдельная связь
@@ -155,6 +161,14 @@ class modules extends base {
 	function modules_fields_view() {
 		$this->addFilter($this->modulesChain['parents'],false);
 		return parent::view();
+	}
+	
+	function modules_menus_add() {
+		return $this->modules_menus_edit(true);
+	}
+	
+	function modules_menus_edit($add=false) {
+		return parent::edit($add);
 	}
 	
 	function modules_menus_view() {

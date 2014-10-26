@@ -9,15 +9,6 @@
 	{% endif %}
 {% endmacro %}
 
-{% macro get_select(field,value,domcms) %}
-	<h6>{{ domcms.current_model[field].title|capitalize }}</h6>
-	<select name="{{ field }}" id="{{ field }}" class="selectpicker filter" data-live-search="true" {% if domcms.current_model[field].access_write!=1 %}disabled="disabled"{% endif %}>
-		{% for i,j in domcms.filters[field]['values'] %}
-		<option{% if value==i %} selected="selected"{% endif %} value="{{ i }}">{{ j }}</option>
-		{% endfor %}
-	</select>
-{% endmacro %}
-
 {% macro view_field(field,value,domcms) %}
 	<h6>{{ field|capitalize }} 
 		<span class="label label-default">{{ value }}</span>
@@ -27,6 +18,36 @@
 			'NOT NULL':'<s>NULL</s>',
 		}) }}</span>
 	</h6>
+
+{% endmacro %}
+
+{% macro get_select(field,value,domcms) %}
+	<h6>{{ domcms.current_model[field].title|capitalize }}</h6>
+	<select name="{{ field }}" id="{{ field }}" class="selectpicker filter" data-live-search="true" {% if domcms.action!='view' and domcms.current_model[field].access_write!=1 %}disabled="disabled"{% endif %}>
+	{% for i,j in domcms.filters[field]['values'] %}
+		{% if j.children is defined %}
+			<option{% if value==i %} selected="selected"{% endif %} value="{{ i }}">{{ j.title }}</option>
+			{% if j.children|length>0 %}
+				{{ _self.get_option_recursive(field,value,j.children,'&rarr; ') }}
+			{% endif %}
+		{% else %}
+			{{ _self.get_option(i,j,value) }}
+		{% endif %}
+	{% endfor %}
+	</select>
+{% endmacro %}
+
+{% macro get_option(i,j,value) %}
+	<option{% if value==i %} selected="selected"{% endif %} value="{{ i }}">{{ j }}</option>
+{% endmacro %}
+
+{% macro get_option_recursive(field,value,list,nested) %}
+	{% for i,j in list %}
+		{{ _self.get_option(i,nested~j.title,value) }}
+		{% if j.children|length>0 %}
+			{{ _self.get_option_recursive(field,value,j.children,'&mdash;') }}
+		{% endif %}
+	{% endfor %}
 {% endmacro %}
 
 {% macro nested_list(list,domcms,users) %}

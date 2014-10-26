@@ -73,7 +73,7 @@ class base {
 			$this->current_model = array_intersect_key($this->current_model,$_POST);
 			$this->edit_data = array();
 			foreach ($this->current_model as $k => $v) {
-				$this->edit_data[$k] = base::getvar($k,$v['default']);
+				$this->edit_data[$k] = base::getvar($k,isset($v['default'])?$v['default']:'');
 			}
 			$this->registry->db->update($this->mode,$this->edit_data,'id='.$this->id);
 			unset($this->edit_data);
@@ -94,9 +94,7 @@ class base {
 		if (empty($model)) return $model;
 		$ret = array();
 		foreach ($model as $k => $v) {
-			if (isset($v['default'])) {
-				$ret[] = $v['default'];
-			}
+			$ret[$k] = isset($v['default']) ? $v['default'] : '';
 		}
 		return $ret;
 	}
@@ -106,9 +104,10 @@ class base {
 		if ($this->current_model=$this->registry->users->checkAccess($this->mode,$this->model[$component],'access_read')) {
 			if (!empty($this->modulesChain['tree']))
 				$this->addFilter($this->modulesChain['tree'],true);
-			foreach ($this->current_model as $k => $v) 
-				if (preg_match('/id_/',$k)>0) 
-					$this->addFilter($this->registry->modules->modulesRegistry[strtr($k,array('id_'=>''))],true);
+			if (!empty($this->modulesChain['parents']))
+				$this->addFilter($this->modulesChain['parents'],true);
+			//if (!empty($this->modulesChain['children']))
+			//if (!empty($this->modulesChain['relations']))
 			if (!empty($this->id)) {
 				$q = $this->getQuery($this->current_model,array('id'=>$this->id));
 				$q .= ' LIMIT 1';
@@ -134,10 +133,9 @@ class base {
 		if (empty($current_model))
 			$current_model = $this->registry->users->checkAccess($this->mode,$this->model[$component],'access_read');
 		if (!empty($current_model)) {
-			$q = $this->getQuery($this->current_model,$params);
-			if (empty($params['id_'.$component])) {
+			$q = $this->getQuery($current_model,$params);
+			if (empty($params['id_'.$component]))
 				$q = strtr($q,array('=NULL'=>' IS NULL'));
-			}
 			if ($order!='') $q .= ' ORDER BY '.$order;
 			$ret = $this->registry->db->get_data($q);
 			foreach ($ret as $k => $v) {
@@ -148,6 +146,33 @@ class base {
 		} else {
 			// return error access to this mode
 		}
+	}
+	
+	function getTree(&$chain,$order='') {
+		if (empty($chain)) return false;
+		$current_model = $this->registry->users->checkAccess($chain['tbl'],array('id'=>array(),'title'=>array(),'id_'.$chain['tbl']=>array()),'access_read');
+		if (!empty($current_model)) {
+			$q = $this->getQuery($current_model,array());
+			$q .= ' ORDER BY id_'.$chain['tree']['tbl'].','.(!empty($order)?$order:'id');
+			$list = $this->registry->db->get_data($q,true,'id');
+			$ret = $this->getTreeRecursive($list,'id_'.$chain['tree']['tbl']);
+			return $ret;
+		}
+	}
+	
+	function getTreeRecursive($list=array(),$field='',$value=NULL) {
+		$ret = array();
+		if (empty($list) OR empty($field)) return $ret;
+		foreach ($list as $k => $v) {
+			if ($v[$field]==$value) {
+				$ret[$k] = $list[$k];
+				unset($list[$k]);
+				$ret[$k]['id'] = $k;
+			}
+		}
+		foreach ($ret as $k => $v)
+			$ret[$k]['children'] = $this->getTreeRecursive($list,$field,$k);
+		return $ret;
 	}
 	
 	// Проверяет в базе корректность таблиц моделей объекта (все модули)
@@ -202,8 +227,13 @@ class base {
 		if ($submit=base::getvar('form_submit','')) {
 			if (true === $add ? $this->addObject($this->mode) : $this->updateObject($this->mode)) 
 				base::redirect(strtr($this->url['edit'],array('%ID%'=>$this->id)));
-		} else 
+		} else {
 			$this->data['item'] = $this->getObject($this->mode);
+			foreach ($this->filters as $k => $v)
+				if (isset($this->data['item'][$k]))
+					if ($this->data['item'][$k] == '')
+						$this->data['item'][$k] = $v['value'];
+		}
 		$this->addCrumb((!empty($this->data['item']['title'])?'Просмотр элемента &laquo;'.$this->data['item']['title'].'&raquo;':'Просмотр элемента'));
 		if (empty($this->registry->template->file)) $this->registry->template->file = 'edit_'.$this->name.'_'.$this->mode.'.html';
 	}
@@ -228,18 +258,22 @@ class base {
 		if (empty($this->registry->template->file)) $this->registry->template->file = 'view.html';
 	}
 	
-	function addFilter(&$chain,$all=true) {
+	function addFilter(&$chain,$all=true,$tree=false) {
 		if (empty($chain)) return false;
 		if ($current_model=$this->registry->users->checkAccess($chain['tbl'],$this->registry->{$chain['class']}->model[$chain['tbl']],'access_read')) {
-			$q = $this->getQuery(array(
-				'title'=>$current_model['title'],
-				'id'=>$current_model['id'],
-			),array(),$chain['tbl']);
 			$this->filters['id_'.$chain['tbl']] = array(
 				'value' => base::getvar('id_'.$chain['tbl'],0),
 				'title' => $chain['title'],
-				'values' => $this->registry->db->get_list($q,false,'id'),
 			);
+			if (empty($chain['tree'])) {
+				$q = $this->getQuery(array(
+					'title'=>$current_model['title'],
+					'id'=>$current_model['id'],
+				),array(),$chain['tbl']);
+				$this->filters['id_'.$chain['tbl']]['values'] = $this->registry->db->get_list($q,false,'id');
+			} else {
+				$this->filters['id_'.$chain['tbl']]['values'] = $this->getTree($chain);
+			}
 			if ($all===true) {
 				$this->filters['id_'.$chain['tbl']]['values'][0] = '-';
 				ksort($this->filters['id_'.$chain['tbl']]['values']);
