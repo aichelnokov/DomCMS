@@ -20,20 +20,42 @@ sup, sub { letter-spacing:1px; }
 	position:relative;
 	.nested_list {
 		.nested_li {
-			height:28px; line-height:28px;
+			position:relative; height:28px; line-height:28px;
+			&.cat_children {
+				.cat_icon {
+					position:absolute; width:21px; height:21px; top:3px; left:-26px;
+					border-radius:50%; background-color:#fff; color:#888; cursor:pointer;
+					&:before {
+						content:'\e081'; display:block; position:absolute; top:0px; left:0px;
+						font-family: 'Glyphicons Halflings'; font-style: normal; font-weight: 400; font-size:21px;
+						line-height:21px; -webkit-font-smoothing: antialiased;
+					}
+					&:hover {
+						&:before { color:#428bca; }
+					}
+				}
+				&.opened {
+					.cat_icon { 
+						color:#ccc; 
+						&:before { content:'\e082'; }
+					}
+					& + .nested_list { display:block; }
+				}
+			}
 			.btn-toolbar {
 				float:right;
 				.btn { line-height:0.7em; }
 			}
 		}
 		.nested_list {
-			margin:10px 0px;
+			display:none; margin:10px 0px;
 		}
 		&.sortable {
 			li {
 				cursor:move;
-				&:hover { background-color:rgba(0,0,0,0.02); }
+				&:hover { background-color:rgba(0,0,0,0.03); }
 			}
+			.ui-sortable-placeholder { border:1px dashed #ddd; list-style-type:none; }
 		}
 	}
 	#links {}

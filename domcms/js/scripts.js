@@ -1,3 +1,48 @@
+jQuery.fn.exists = function() {
+	return jQuery(this).length;
+}
+
+function abc(n) {
+    n = new Array(4 - n.length % 3).join("U") + n;
+	var str = n.replace(/([0-9U]{3})/g, "jQuery1 ").replace(/U/g, "");
+	if (str.substr(str.length-1,1)==" ") {
+		str = str.substr(0,str.length-1)
+		if (str.substr(0,1)==" ") {
+			return str.substr(1,str.length-1);
+		} else {
+			return str;
+		}
+	}
+}
+
+function cba(n) {
+	return n.replace(/\s/g,"");
+}
+
+function url_param_replace(url,param,value) {
+	pos = url.indexOf(param+'=');
+	if (pos != -1) {
+		end = url.indexOf('&',pos);
+		url = url.substring(0,pos)+param+'='+value+(end!=-1?url.substring(end):'');
+	} else {
+		url = url+'&'+param+'='+value;
+	}
+	return url;
+}
+
+jQuery.fn.serializeUl = function(options) {
+	var defaults = {
+		key: 'id',
+		attribute: 'id'
+	};
+	jQuery.extend(defaults,options);
+	var s = '';
+	jQuery(this).children("li").each(function(){
+		s += '&'+defaults.key+'[]='+jQuery(this).attr(defaults.attribute);
+	});
+	return s.substring(1);
+}
+
 $(function(){
 	$('.selectpicker').selectpicker({
 		size: 8
@@ -32,6 +77,26 @@ $(function(){
 		$('#filters input.filter').val('');
 		$('#filter_accept').click();
 	});
+	
+	$('.cat_children .cat_icon').bind('click',function(){
+		$(this).parent().toggleClass('opened');
+	});
+	
+	if($(".sortable").exists()) 
+		$(".sortable").sortable({
+			items: 'li',
+			cursor:"move",
+			tolerance:"pointer",
+			toleranceElement: '> div.nested_li',
+			placeholder: "ui-sortable-placeholder",
+			axis: "y",
+			start: function(event,ui) {
+				jQuery(".ui-sortable-placeholder").css({height:ui.item.innerHeight()+1});
+			},
+			stop: function(event,ui){
+				var ar = ui.item.parent().serializeUl({key:'id'});
+			}
+		}).disableSelection();
 	
 	/*$('[rel=tooltip]').bind("hover",function(){
 		$(this).tooltip({

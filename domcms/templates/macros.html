@@ -54,7 +54,8 @@
 	<ul class="list-group nested_list{% if domcms.sortable=='sort' %} sortable{% endif %}">
 		{% for i in list %}
 		<li class="list-group-item">
-			<div class="nested_li">
+			<div class="nested_li{% if i.children|length>0 %} cat_children{% endif %}">
+				{% if i.children|length>0 %}<div class="cat_icon"></div>{% endif %}
 				{% if i.title is defined %}<a href="{% if users.access[domcms.mode]['id']['access_read']!=0 %}{{ domcms.url.edit|replace({'%ID%':i.id}) }}{% else %}#{% endif %}">{{ i.title }}</a>{% endif %}
 				{% if i.url is defined %}<span class="label label-default">{{ i.url }}</span>{% endif %}
 				<div class="btn-toolbar">
