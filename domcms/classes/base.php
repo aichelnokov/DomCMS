@@ -152,7 +152,10 @@ class base {
 		if (empty($chain)) return false;
 		$current_model = $this->registry->users->checkAccess($chain['tbl'],array('id'=>array(),'title'=>array(),'id_'.$chain['tbl']=>array()),'access_read');
 		if (!empty($current_model)) {
-			$q = $this->getQuery($current_model,array());
+			$params = array();
+			if (!empty($this->id))
+				$params['id'] = '!='.$this->id;
+			$q = $this->getQuery($current_model,$params);
 			$q .= ' ORDER BY id_'.$chain['tree']['tbl'].','.(!empty($order)?$order:'id');
 			$list = $this->registry->db->get_data($q,true,'id');
 			$ret = $this->getTreeRecursive($list,'id_'.$chain['tree']['tbl']);
