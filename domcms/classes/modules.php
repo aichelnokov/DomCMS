@@ -27,12 +27,21 @@ class modules extends base {
 			'title' => array('type'=>'VARCHAR(255)','default'=>''),
 			'act' => array('type'=>'VARCHAR(255)','default'=>''),
 			'sort' => array('type'=>'INT(255)','default'=>0,'flags'=>'UNSIGNED NOT NULL'),
+			'icon' => array('type'=>'VARCHAR(255)','default'=>''),
 		),
 	);
 	
 	function getModulesRegistry() {
 		$this->modulesRegistry = $this->registry->db->get_data('SELECT m.id, m.title, m.class, m.controls_view, m.tbl, m.tbl as k FROM modules AS m',true,'k');
+		$this->modulesRegistryById = array();
+		foreach ($this->modulesRegistry as $k => $v)
+			$this->modulesRegistryById[$v['id']] = &$this->modulesRegistry[$k];
 		return true;
+	}
+	
+	function getModulesById($id=false) {
+		if (!$id) return false;
+		return !empty($this->modulesRegistryById[$id]) ? $this->modulesRegistryById[$id] : false;
 	}
 	
 	function init() {
@@ -168,6 +177,24 @@ class modules extends base {
 	}
 	
 	function modules_menus_edit($add=false) {
+		$this->filters['icon'] = array(
+			'values' => array(
+				'' => '-',
+				'align-justify' => 'align-justify',
+				'th-list' => 'th-list',
+				'plus' => 'plus',
+				'minus' => 'minus',
+				'th-large' => 'th-large',
+				'envelope' => 'envelope',
+				'cog' => 'cog',
+				'star' => 'star',
+				'user' => 'user',
+				'lock' => 'lock',
+				'stats' => 'stats',
+				'shopping-cart' => 'shopping-cart',
+				'folder-open' => 'folder-open',
+			),
+		);
 		return parent::edit($add);
 	}
 	

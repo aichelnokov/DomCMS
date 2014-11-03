@@ -82,10 +82,9 @@ class base {
 		}
 	}
 	
-	// Получение информации об объекте с заданным идентификатором
 	function getQuery($model,$params,$mode='') {
 		if ($mode=='') $mode = $this->mode;
-		$q = 'SELECT '.implode(', ',array_keys($model)).' FROM '.$mode;
+		$q = 'SELECT DISTINCT '.$mode.'.'.implode(', '.$mode.'.',array_keys($model)).' FROM '.$mode;
 		if ($w=$this->registry->db->build_array('SELECT',$params)) $q .= ' WHERE '.$w;	
 		return $q;
 	}
@@ -119,8 +118,8 @@ class base {
 	
 	function getObjects($component='',$params=array(),$order='') {
 		if (empty($component)) return false;
-		if ($this->current_model=$this->registry->users->checkAccess($this->mode,$this->model[$component],'access_read')) {
-			$q = $this->getQuery($this->current_model,$params);
+		if ($current_model=$this->registry->users->checkAccess($this->mode,$this->model[$component],'access_read')) {
+			$q = $this->getQuery($current_model,$params);
 			if ($order!='') $q .= ' ORDER BY '.$order;
 			return $this->registry->db->get_data($q);
 		} else {
@@ -155,10 +154,10 @@ class base {
 			$params = array();
 			if (!empty($this->id))
 				$params['id'] = '!='.$this->id;
-			$q = $this->getQuery($current_model,$params);
-			$q .= ' ORDER BY id_'.$chain['tree']['tbl'].','.(!empty($order)?$order:'id');
+			$q = $this->getQuery($current_model,$params,$chain['tbl']);
+			$q .= ' ORDER BY id_'.$chain['tbl'].','.(!empty($order)?$order:'id');
 			$list = $this->registry->db->get_data($q,true,'id');
-			$ret = $this->getTreeRecursive($list,'id_'.$chain['tree']['tbl']);
+			$ret = $this->getTreeRecursive($list,'id_'.$chain['tbl']);
 			return $ret;
 		}
 	}
@@ -201,6 +200,7 @@ class base {
 		$this->page = base::getvar('page',1);
 		$this->count_on_page = 20;
 		$this->sortable = '';
+		$this->menu = 
 		$this->data = 
 		$this->buttons = 
 		$this->filters = 
@@ -232,10 +232,10 @@ class base {
 				base::redirect(strtr($this->url['edit'],array('%ID%'=>$this->id)));
 		} else {
 			$this->data['item'] = $this->getObject($this->mode);
-			foreach ($this->filters as $k => $v)
-				if (isset($this->data['item'][$k]))
-					if ($this->data['item'][$k] == '')
-						$this->data['item'][$k] = $v['value'];
+			//foreach ($this->filters as $k => $v)
+				//if (isset($this->data['item'][$k]))
+					//if ($this->data['item'][$k] == '')
+						//$this->data['item'][$k] = $v['value'];
 		}
 		$this->addCrumb((!empty($this->data['item']['title'])?'Просмотр элемента &laquo;'.$this->data['item']['title'].'&raquo;':'Просмотр элемента'));
 		if (empty($this->registry->template->file)) $this->registry->template->file = 'edit_'.$this->name.'_'.$this->mode.'.html';
@@ -278,7 +278,7 @@ class base {
 				$this->filters['id_'.$chain['tbl']]['values'] = $this->getTree($chain);
 			}
 			if ($all===true) {
-				$this->filters['id_'.$chain['tbl']]['values'][0] = '-';
+				$this->filters['id_'.$chain['tbl']]['values']['NULL'] = '-';
 				ksort($this->filters['id_'.$chain['tbl']]['values']);
 			} else {
 				if ($this->filters['id_'.$chain['tbl']]['value']===0)
@@ -334,6 +334,24 @@ class base {
 				'url' => '/domcms/?module='.$chain['class'].'&mode='.$chain['tbl'],
 				'glyphicon' => $glyphicon,
 			);
+		}
+	}
+	
+	public function addMenus() {
+		//$this->menu = $this->getTree($this->registry->modules->modulesRegistry['modules_menus'],'sort');
+		$menu = $this->registry->db->get_data('SELECT DISTINCT mm.id, mm.id_modules, mm.id_modules_menus, mm.title, mm.icon, m.class AS module, m.tbl AS mode, mm.act AS action FROM modules_menus AS mm LEFT JOIN modules AS m ON mm.id_modules=m.id WHERE 1 ORDER BY mm.id_modules_menus,mm.sort',true);
+		foreach ($menu as $k => $v) {
+			if ($v['id_modules_menus']==NULL) {
+				$this->menu[$v['id']] = $v;
+				$this->menu[$v['id']]['children'] = array();
+				unset($menu[$k]);
+			}
+		}
+		foreach ($menu as $k => $v) {
+			if (array_key_exists($v['id_modules_menus'],$this->menu)) {
+				$this->menu[$v['id_modules_menus']]['children'][$v['id']] = $v;
+				unset($menu[$k]);
+			}
 		}
 	}
 	

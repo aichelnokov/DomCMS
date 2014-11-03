@@ -41,20 +41,27 @@
 			</div>
 			<div class="navbar-collapse collapse">
 				<ul class="nav navbar-nav">
-					<li class="active"><a href="/domcms/?module=modules&mode=modules&action=view">Модули</a></li>
-					<li><a href="/domcms/?module=modules&mode=modules_menus&action=view">Меню</a></li>
+				{% for k,v in domcms.menu %}
+					{% if v.children|length<1 %}
+					<li>
+						<a href="/domcms/">
+							{% if v.icon != '' %}<span class="glyphicon glyphicon-{{ v.icon }}"></span> {% endif %}{{ v.title }}
+						</a>
+					</li>
+					{% else %}
 					<li class="dropdown">
-						<a href="#" class="dropdown-toggle" data-toggle="dropdown">Users <span class="caret"></span></a>
+						<a href="/domcms/?module={{ v.module }}&mode={{ v.mode }}{% if v.action!='' %}{{ v.action }}{% endif %}" class="dropdown-toggle" data-toggle="dropdown">
+							{% if v.icon != '' %}<span class="glyphicon glyphicon-{{ v.icon }}"></span> {% endif %}
+							{{ v.title }} <span class="caret"></span>
+						</a>
 						<ul class="dropdown-menu" role="menu">
-							<li><a href="#">Action</a></li>
-							<li><a href="#">Another action</a></li>
-							<li><a href="#">Something else here</a></li>
-							<li class="divider"></li>
-							<li class="dropdown-header">Nav header</li>
-							<li><a href="#">Separated link</a></li>
-							<li><a href="#">One more separated link</a></li>
+						{% for k1,v1 in v.children %}
+							<li><a href="/domcms/?module={{ v1.module }}&mode={{ v1.mode }}{% if v1.action!='' %}{{ v1.action }}{% endif %}"><span class="glyphicon glyphicon-{% if v1.icon != '' %}{{ v1.icon }}{% else %}none{% endif %}"></span> {{ v1.title }}</a></li>
+						{% endfor %}
 						</ul>
 					</li>
+					{% endif %}
+				{% endfor %}
 				</ul>
 				<form class="navbar-form navbar-right" method="post" action="/domcms/" role="form">
 					<span class="glyphicon glyphicon-user"></span> <a href="/domcms/">{{ users.login }}</a>&nbsp;&nbsp;&nbsp;<button class="btn btn-danger" type="submit" name="signout" value="true"><span class="glyphicon glyphicon-off"></span> Выйти</button>
