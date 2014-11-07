@@ -160,6 +160,7 @@ class users extends base {
 	}
 	
 	function users_view() {
+		$this->listFields['login'] = array('type'=>'VARCHAR(255)');
 		//$this->addFilter($this->modulesChain['link']['id_groups']);
 		return parent::view();
 	}

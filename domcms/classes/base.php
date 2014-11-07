@@ -120,8 +120,9 @@ class base {
 	function getObjects($component='',$params=array(),$order='') {
 		if (empty($component)) return false;
 		if ($current_model=$this->registry->users->checkAccess($this->mode,$this->model[$component],'access_read')) {
+			$current_model = array_intersect_key($current_model,$this->listFields);
 			$q = $this->getQuery($current_model,$params);
-			if ($order!='') $q .= ' ORDER BY '.$order;
+				if ($order!='') $q .= ' ORDER BY '.$order;
 			return $this->registry->db->get_data($q);
 		} else {
 			// return error access to this mode
@@ -201,6 +202,13 @@ class base {
 		$this->page = base::getvar('page',1);
 		$this->count_on_page = 20;
 		$this->sortable = '';
+		$this->listFields = array(
+			'id' => array('type'=>'INT(255)'),
+			'title' => array('type'=>'VARCHAR(255)'),
+			'visible' => array('type'=>'INT(1)'),
+			'sort' => array('type'=>'INT(255)'),
+			'date' => array('type'=>'INT(255)'),
+		);
 		$this->menu = 
 		$this->data = 
 		$this->buttons = 
