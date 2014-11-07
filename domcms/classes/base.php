@@ -26,6 +26,7 @@ class base {
 		$this->registry=registry::get_registry();
 		$this->registry->{$this->name}=null;
 		$this->registry->{$this->name}=&$this;
+		
 		return $this->checkModel();
 	}
 	
@@ -40,15 +41,10 @@ class base {
 		$this->registry->{$this->name}=null;
 		$this->registry=null;
 		if($this->cache=='session') {
+			unset($this->crumbs);
 			$_SESSION['OBJECTS'][$this->name]=serialize($this);
 		}
 	}
-	
-	// Если существует метод get{name} вызываем его и возвращаем результат иначе возвращает false
-	/*function __get($name) {
-		if(method_exists($this,'get'.$name)) return $this->{'get'.$name}(); 
-		else return false;
-	}*/
 	
 	function addObject($component) {
 		if ($this->current_model=$this->registry->users->checkAccess($this->mode,$this->model[$component],'access_write')) {
@@ -110,9 +106,14 @@ class base {
 			if (!empty($this->id)) {
 				$q = $this->getQuery($this->current_model,array('id'=>$this->id));
 				$q .= ' LIMIT 1';
-				return $this->registry->db->get_data($q,false);
+				$ret = $this->registry->db->get_data($q,false);
 			} else
-				return $this->getEmptyObject($this->current_model);
+				$ret = $this->getEmptyObject($this->current_model);
+			foreach ($ret as $k => $v) {
+				if (!empty($this->filters[$k]['value']))
+					$ret[$k] = $this->filters[$k]['value'];
+			}
+			return $ret;
 		} // else return false
 	}
 	

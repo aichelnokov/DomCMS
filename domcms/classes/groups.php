@@ -4,7 +4,7 @@ if(!defined('IN_SITE')) exit;
 
 class groups extends base {
 	
-	protected $model = array (
+	public $model = array (
 		'groups' => array(
 			'id' => array('type'=>'INT(255)','flags'=>'UNSIGNED NOT NULL AUTO_INCREMENT','inner_keys'=>'PRIMARY'),
 			'title' => array('type'=>'VARCHAR(255)','default'=>''),
@@ -24,8 +24,26 @@ class groups extends base {
 	}
 	
 	static function getOwnerId() {
-		global $db;
-		return $db->get_single('SELECT id FROM groups WHERE title="Владелец" LIMIT 1');
+		static $owner;
+		if (empty($owner)) {
+			global $db;
+			$owner = $db->get_single('SELECT id FROM groups WHERE title="Владелец" LIMIT 1');
+		}
+		return $owner;
+	}
+	
+	static function getUnregisteredId() {
+		static $unregistered;
+		if (empty($unregistered)) {
+			global $db;
+			$unregistered = $db->get_single('SELECT id FROM groups WHERE title="Не зарегистрированные" LIMIT 1');
+		}
+		return $unregistered;
+	}
+	
+	function groups_view() {
+		$this->addListButton($this->modulesChain['children']['groups_access'],'glyphicon-lock');
+		return parent::view();
 	}
 	
 }

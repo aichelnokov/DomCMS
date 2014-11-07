@@ -6,7 +6,7 @@ class modules extends base {
 	
 	protected $modulesRegistry = array();
 	
-	protected $model = array (
+	public $model = array (
 		'modules' => array(
 			'id' => array('type'=>'INT(255)','flags'=>'UNSIGNED NOT NULL AUTO_INCREMENT','inner_keys'=>'PRIMARY'),
 			'class' => array('type'=>'VARCHAR(255)','default'=>''),
@@ -16,7 +16,7 @@ class modules extends base {
 		),
 		'modules_fields' => array(
 			'id' => array('type'=>'INT(255)','flags'=>'UNSIGNED NOT NULL AUTO_INCREMENT','inner_keys'=>'PRIMARY'),
-			'id_modules' => array('type'=>'INT(255)','default'=>0,'flags'=>'UNSIGNED','outer_keys'=>'modules(id) ON UPDATE CASCADE ON DELETE CASCADE'),
+			'id_modules' => array('type'=>'INT(255)','flags'=>'UNSIGNED','outer_keys'=>'modules(id) ON UPDATE CASCADE ON DELETE CASCADE'),
 			'name' => array('type'=>'VARCHAR(255)','default'=>''),
 			'title' => array('type'=>'VARCHAR(255)','default'=>''),
 		),

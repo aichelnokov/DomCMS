@@ -8,7 +8,6 @@ define('IN_SITE',true);
 define('ROOT_DIR',realpath(__DIR__.'\\..').'\\');
 
 require_once(ROOT_DIR.'domcms\loader.php');
-
 if (!$users->isValid()) $template->file = 'login.html';
 else {
 	// get global vars

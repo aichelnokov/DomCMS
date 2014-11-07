@@ -11,9 +11,10 @@ class users extends base {
 	public $error		= '';
 	public $cache 		= 'session';
 	
-	protected $model = array (
+	public $model = array (
 		'users' => array(
 			'id' => array('type'=>'INT(255)','flags'=>'UNSIGNED NOT NULL AUTO_INCREMENT','inner_keys'=>'PRIMARY'),
+			'id_groups' => array('type'=>'INT(255)','flags'=>'UNSIGNED','outer_keys'=>'groups(id) ON UPDATE CASCADE ON DELETE SET NULL'),
 			'login' => array('type'=>'VARCHAR(255)','default'=>''),
 			'password' => array('type'=>'VARCHAR(255)','default'=>''),
 			'active' => array('type'=>'INT(1)','default'=>1,'flags'=>'UNSIGNED NOT NULL'),
@@ -26,10 +27,6 @@ class users extends base {
 			'birdthdate' => array('type'=>'INT(255)','default'=>0,'flags'=>'UNSIGNED NOT NULL'),
 			'about' => array('type'=>'TEXT','default'=>''),
 		),
-		'users_groups' => array(
-			'id_users' => array('type'=>'INT(255)','flags'=>'UNSIGNED','outer_keys'=>'users(id) ON UPDATE CASCADE ON DELETE CASCADE'),
-			'id_groups' => array('type'=>'INT(255)','flags'=>'UNSIGNED','outer_keys'=>'groups(id) ON UPDATE CASCADE ON DELETE SET NULL'),
-		),
 	);
 	
 	function restore() {
@@ -39,6 +36,7 @@ class users extends base {
 	}
 	
 	function init() {
+		$this->model['users']['id_groups']['default'] = groups::getUnregisteredId();
 		if(empty($_SESSION['OBJECTS'][$this->name])) { //Если сессии пользователя еще нет - добываем данные о нем
 			$this->browser = ( !empty($_SERVER['HTTP_USER_AGENT']) ) ? htmlspecialchars($_SERVER['HTTP_USER_AGENT']) : '';
 			$this->enter_time = time();
@@ -122,10 +120,10 @@ class users extends base {
 	function getAccess() {
 		if ($this->isValid())
 			$temp = $this->registry->db->get_data('
-				SELECT g.title, ug.id_groups AS id 
-				FROM users_groups AS ug 
-				RIGHT JOIN groups AS g ON g.id=ug.id_groups 
-				WHERE ug.id_users='.$this->id,false);
+				SELECT g.title, u.id_groups AS id 
+				FROM users AS u 
+				RIGHT JOIN groups AS g ON g.id=u.id_groups 
+				WHERE u.id='.$this->id,false);
 		else
 			$temp = $this->registry->db->get_data('SELECT g.id, g.title FROM groups AS g WHERE g.id=1',false);
 		if (!empty($temp)) {
@@ -159,6 +157,11 @@ class users extends base {
 			}
 		}
 		return (!empty($model))?$model:false;
+	}
+	
+	function users_view() {
+		//$this->addFilter($this->modulesChain['link']['id_groups']);
+		return parent::view();
 	}
 	
 }
