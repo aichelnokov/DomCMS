@@ -12,7 +12,11 @@ class modules extends base {
 			'class' => array('type'=>'VARCHAR(255)','default'=>''),
 			'title' => array('type'=>'VARCHAR(255)','default'=>''),
 			'tbl' => array('type'=>'VARCHAR(255)','default'=>''),
-			'controls_view' => array('type'=>'VARCHAR(255)','default'=>'edit delete'),
+			'fields_view' => array('type'=>'VARCHAR(255)','default'=>'title'), // id, title, login, date, city, sort, visible, lang
+			'buttons_view' => array('type'=>'VARCHAR(255)','default'=>'add'), // add, clear
+			'controls_view' => array('type'=>'VARCHAR(255)','default'=>'edit delete'), // edit, visible, delete, add_children
+			'buttons_edit' => array('type'=>'VARCHAR(255)','default'=>'add'), // add, add_children, photos, videos, ...
+			'controls_edit' => array('type'=>'VARCHAR(255)','default'=>'edit add clear delete'), // edit add clear delete
 		),
 		'modules_fields' => array(
 			'id' => array('type'=>'INT(255)','flags'=>'UNSIGNED NOT NULL AUTO_INCREMENT','inner_keys'=>'PRIMARY'),
@@ -32,10 +36,16 @@ class modules extends base {
 	);
 	
 	function getModulesRegistry() {
-		$this->modulesRegistry = $this->registry->db->get_data('SELECT m.id, m.title, m.class, m.controls_view, m.tbl, m.tbl as k FROM modules AS m',true,'k');
+		$this->modulesRegistry = $this->registry->db->get_data('SELECT m.id, m.title, m.class, m.fields_view, m.buttons_view, m.controls_view, m.buttons_edit, m.controls_edit, m.tbl, m.tbl as k FROM modules AS m',true,'k');
 		$this->modulesRegistryById = array();
-		foreach ($this->modulesRegistry as $k => $v)
+		foreach ($this->modulesRegistry as $k => $v) {
+			$this->modulesRegistry[$k]['fields_view'] = explode(' ',$v['fields_view']);
+			$this->modulesRegistry[$k]['controls_view'] = explode(' ',$v['controls_view']);
+			$this->modulesRegistry[$k]['buttons_view'] = explode(' ',$v['buttons_view']);
+			$this->modulesRegistry[$k]['controls_edit'] = explode(' ',$v['controls_edit']);
+			$this->modulesRegistry[$k]['buttons_edit'] = explode(' ',$v['buttons_edit']);
 			$this->modulesRegistryById[$v['id']] = &$this->modulesRegistry[$k];
+		}
 		return true;
 	}
 	
@@ -210,7 +220,7 @@ class modules extends base {
 	function modules_view() {
 		$this->pagination = false;
 		$this->addLink($this->modulesChain['children']['modules_menus']);
-		$this->addListButton($this->modulesChain['children']['modules_fields']);
+		//$this->addListButton($this->modulesChain['children']['modules_fields']);
 		return parent::view();
 	}
 	

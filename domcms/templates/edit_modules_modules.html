@@ -17,12 +17,29 @@
 
 {% block col_2 %}
 	
+	{% import "macros.html" as macros %}
+	
 	<div class="panel panel-default">
 		<div class="panel-heading"><h3 class="panel-title">Параметры элемента</h3></div>
 		<div class="panel-body">
-			{% import "macros.html" as macros %}
 			{{ macros.get_input('id',domcms.data.item.id,domcms) }}
+		</div>
+	</div>
+	
+	<div class="panel panel-default">
+		<div class="panel-heading"><h3 class="panel-title">Параметры списка</h3></div>
+		<div class="panel-body">
+			{{ macros.get_input('fields_view',domcms.data.item.fields_view,domcms) }}
+			{{ macros.get_input('buttons_view',domcms.data.item.buttons_view,domcms) }}
 			{{ macros.get_input('controls_view',domcms.data.item.controls_view,domcms) }}
+		</div>
+	</div>
+	
+	<div class="panel panel-default">
+		<div class="panel-heading"><h3 class="panel-title">Параметры добавления\редактирования элемента</h3></div>
+		<div class="panel-body">
+			{{ macros.get_input('buttons_edit',domcms.data.item.buttons_edit,domcms) }}
+			{{ macros.get_input('controls_edit',domcms.data.item.controls_edit,domcms) }}
 		</div>
 	</div>
 	

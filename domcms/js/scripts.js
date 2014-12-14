@@ -82,19 +82,25 @@ $(function(){
 		$(this).parent().toggleClass('opened');
 	});
 	
-	if($(".sortable").exists()) 
-		$(".sortable").sortable({
+	if($(".sortable:first").exists()) 
+		$(".sortable:first").nestedSortable({
+			handle: 'div',
+			protectRoot: true,
+			disableNesting: 'no-nesting',
 			items: 'li',
 			cursor:"move",
 			tolerance:"pointer",
 			toleranceElement: '> div.nested_li',
 			placeholder: "ui-sortable-placeholder",
-			axis: "y",
+			//axis: "y",
 			start: function(event,ui) {
 				jQuery(".ui-sortable-placeholder").css({height:ui.item.innerHeight()+1});
 			},
 			stop: function(event,ui){
 				var ar = ui.item.parent().serializeUl({key:'id'});
+			},
+			isAllowed: function(item,parent){
+				return true;
 			}
 		}).disableSelection();
 	

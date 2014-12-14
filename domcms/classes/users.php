@@ -11,7 +11,11 @@ class users extends base {
 	public $error		= '';
 	public $cache 		= 'session';
 	
-	public $model = array (
+	public $relations = array(
+		
+	);
+	
+	public $model = array(
 		'users' => array(
 			'id' => array('type'=>'INT(255)','flags'=>'UNSIGNED NOT NULL AUTO_INCREMENT','inner_keys'=>'PRIMARY'),
 			'id_groups' => array('type'=>'INT(255)','flags'=>'UNSIGNED','outer_keys'=>'groups(id) ON UPDATE CASCADE ON DELETE SET NULL'),
@@ -161,6 +165,7 @@ class users extends base {
 	
 	function users_view() {
 		$this->listFields['login'] = array('type'=>'VARCHAR(255)');
+		$this->addLink($this->modulesChain['link']['id_groups']);
 		//$this->addFilter($this->modulesChain['link']['id_groups']);
 		return parent::view();
 	}

@@ -228,7 +228,6 @@ class base {
 		if ($this->modulesChain = $this->registry->modules->getModulesChain()) {
 			if (!empty($this->modulesChain['tree']))
 				$this->url['add_children'] = $this->url['add'].'&id_'.$this->mode.'=%ID_PARENT%';
-			$this->addCrumb('DomCMS','/domcms/');
 			$this->addCrumbs();
 		}
 		$this->title = $this->registry->db->get_single('SELECT DISTINCT title FROM modules WHERE class="'.$this->name.'" LIMIT 1');
@@ -246,6 +245,8 @@ class base {
 					//if ($this->data['item'][$k] == '')
 						//$this->data['item'][$k] = $v['value'];
 		}
+		$this->addButtons($this->modulesChain['buttons_edit']);
+		//$this->addControls($this->modulesChain['controls_edit']);
 		$this->addCrumb((!empty($this->data['item']['title'])?'Просмотр элемента &laquo;'.$this->data['item']['title'].'&raquo;':'Просмотр элемента'));
 		if (empty($this->registry->template->file)) $this->registry->template->file = 'edit_'.$this->name.'_'.$this->mode.'.html';
 	}
@@ -253,10 +254,7 @@ class base {
 	function add() { return $this->edit(true); }
 	
 	function view() {
-		$this->addCrumb('Список элементов');
 		$this->current_model = $this->registry->users->checkAccess($this->mode,$this->model[$this->mode],'access_read');
-		if ($this->current_model['id']['access_write']==1) 
-			$this->addButton('Добавить',$this->url['add'].$this->url['tail'],'plus-sign','btn-primary');
 		$params = array();
 		foreach($this->filters as $k => $v)
 			if ($v['value']>0)
@@ -267,6 +265,8 @@ class base {
 			$params['id_'.$this->mode] = NULL;
 			$this->data['list'] = $this->getObjectsRecursive($this->mode,$params,$this->sortable);
 		}
+		$this->addButtons($this->modulesChain['buttons_view']);
+		$this->addCrumb('Список элементов');
 		if (empty($this->registry->template->file)) $this->registry->template->file = 'view.html';
 	}
 	
@@ -308,7 +308,10 @@ class base {
 	}
 	
 	function addCrumbs($chain=array()) {
-		if (empty($chain)) $chain = $this->modulesChain;
+		if (empty($chain)) {
+			$this->addCrumb('DomCMS','/domcms/');
+			$chain = $this->modulesChain;
+		}
 		if (!empty($chain['parents']))
 			$this->addCrumbs($chain['parents']);
 		$this->addCrumb($chain['title'],'/domcms/?module='.$chain['class'].'&mode='.$chain['tbl']);
@@ -322,6 +325,17 @@ class base {
 	
 	function addButton($title='',$url='',$glyphicon='',$type='btn-default') {
 		$this->buttons[] = array('title'=>$title, 'url'=>$url, 'glyphicon'=>$glyphicon, 'type'=>$type);
+	}
+	
+	function addButtons($buttons=array()) {
+		if (empty($buttons)) return;
+		foreach ($buttons as $k => $v) {
+			switch($v) {
+				case 'add': $this->addButton('Добавить',$this->url['add'].$this->url['tail'],'plus-sign','btn-primary'); break;
+				case 'clear': $this->addButton('Удалить все',$this->url['module_mode'].'&action=clear'.$this->url['tail'],'trash','btn-danger'); break;
+				case 'add_children': if (!empty($this->modulesChain['tree'])) $this->addButton('Добавить дочерний элемент',$this->url['add'].'&id_parent='.$this->data['item']['id'].$this->url['tail'],'plus-sign','btn-primary'); break;
+			}
+		}
 	}
 	
 	function addListButton(&$chain,$glyphicon='glyphicon-list') {

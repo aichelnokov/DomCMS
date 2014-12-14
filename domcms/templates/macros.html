@@ -51,13 +51,19 @@
 {% endmacro %}
 
 {% macro nested_list(list,domcms,users) %}
-	<ul class="list-group nested_list{% if domcms.sortable=='sort' %} sortable{% endif %}">
+	<ol class="list-group nested_list{% if domcms.sortable=='sort' %} sortable{% endif %}">
 		{% for i in list %}
 		<li class="list-group-item">
 			<div class="nested_li{% if i.children|length>0 %} cat_children{% endif %}">
 				{% if i.children|length>0 %}<div class="cat_icon"></div>{% endif %}
-				{% if i.title is defined %}<a href="{% if users.access[domcms.mode]['id']['access_read']!=0 %}{{ domcms.url.edit|replace({'%ID%':i.id}) }}{% else %}#{% endif %}">{{ i.title }}</a>{% endif %}
-				{% if i.url is defined %}<span class="label label-default">{{ i.url }}</span>{% endif %}
+				{% for j,y in domcms.modulesChain.fields_view %}
+					{% if j == 0 %}
+						<a href="{% if users.access[domcms.mode]['id']['access_read']!=0 %}{{ domcms.url.edit|replace({'%ID%':i.id}) }}{% else %}#{% endif %}">{{ i[y] }}</a>
+					{% else %}
+						{{ i['firstname'] }}
+						<span class="label label-default">{{ i[y] }}</span>
+					{% endif %}
+				{% endfor %}
 				<div class="btn-toolbar">
 					{% if domcms.url.listButtons|length>0 %}
 					<div class="btn-group">
@@ -92,5 +98,5 @@
 			{% if i.children|length>0 %}{{ _self.nested_list(i.children,domcms,users) }}{% endif %}
 		</li>
 		{% endfor %}
-	</ul>
+	</ol>
 {% endmacro %}
