@@ -98,6 +98,12 @@ class modules extends base {
 				}
 			}
 		}
+		/*if (!empty($this->registry->{$chain['tbl']}->modelRelations[$chain['tbl']])) {
+			print_r($this->registry->{$chain['tbl']}->modelRelations[$chain['tbl']]);
+			foreach ($this->registry->{$chain['tbl']}->modelRelations[$chain['tbl']]['links'] AS $k1 => $v1) {
+				$chain['link'][$k1] = $this->modulesRegistry[$v1];
+			}
+		}*/
 	}
 	
 	function getModulesChainParents(&$chain,$model) {
@@ -220,7 +226,7 @@ class modules extends base {
 	function modules_view() {
 		$this->pagination = false;
 		$this->addLink($this->modulesChain['children']['modules_menus']);
-		//$this->addListButton($this->modulesChain['children']['modules_fields']);
+		$this->addListButton($this->modulesChain['children']['modules_fields']);
 		return parent::view();
 	}
 	
