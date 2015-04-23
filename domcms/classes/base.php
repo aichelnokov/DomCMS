@@ -189,7 +189,7 @@ class base {
 				if ($alter_fields = $this->registry->db->complianceTable($k,$v))
 					$this->registry->modules->fillModuleFields($this->registry->modules->existsModule($this->name,$k),$alter_fields);
 			}
-			$this->registry->modules->checkModule($this->name,$k,$v);
+			$this->registry->modules->checkModule($this->name,$k,$v,!empty($this->relations[$k])?$this->relations[$k]:false);
 		}
 		return true;
 	}

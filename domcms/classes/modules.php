@@ -59,12 +59,17 @@ class modules extends base {
 		return parent::init();
 	}
 	
-	function checkModule($class,$table,$fields) {
+	function checkModule($class,$table,$fields,$relations) {
 		if ($module = $this->existsModule($class,$table,true)) {
 			//echo 'Module $class='.$class.' &mode='.$table.' is exists!<br>';
 		} else {
 			$id = $this->registry->db->insert('modules',array('class'=>$class,'tbl'=>$table,'title'=>$table));
 			$this->fillModuleFields($id,$fields);
+		}
+		if (!empty($relations)) {
+			foreach ($relations as $k => $v) {
+				$this->modulesRegistry[$k]['link'][$table] = $this->modulesRegistry[$table];
+			}				
 		}
 	}
 	
@@ -98,12 +103,6 @@ class modules extends base {
 				}
 			}
 		}
-		/*if (!empty($this->registry->{$chain['tbl']}->modelRelations[$chain['tbl']])) {
-			print_r($this->registry->{$chain['tbl']}->modelRelations[$chain['tbl']]);
-			foreach ($this->registry->{$chain['tbl']}->modelRelations[$chain['tbl']]['link'] AS $k1 => $v1) {
-				$chain['link'][$k1] = $this->modulesRegistry[$v1];
-			}
-		}*/
 	}
 	
 	function getModulesChainParents(&$chain,$model) {

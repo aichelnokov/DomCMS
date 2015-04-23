@@ -11,10 +11,6 @@ class users extends base {
 	public $error		= '';
 	public $cache 		= 'session';
 	
-	public $relations = array(
-		
-	);
-	
 	public $model = array(
 		'users' => array(
 			'id' => array('type'=>'INT(255)','flags'=>'UNSIGNED NOT NULL AUTO_INCREMENT','inner_keys'=>'PRIMARY'),
@@ -31,6 +27,12 @@ class users extends base {
 			'birdthdate' => array('type'=>'INT(255)','default'=>0,'flags'=>'UNSIGNED NOT NULL'),
 			'about' => array('type'=>'TEXT','default'=>''),
 		),
+	);
+	
+	public $relations = array(
+		'users' => array(
+			'groups' => array('id_groups','id')
+		)
 	);
 	
 	function restore() {
