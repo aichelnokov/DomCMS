@@ -18,14 +18,6 @@ class groups extends base {
 		),
 	);
 	
-	public $modelRelations = array(
-		'groups' => array(
-			'link' => array(
-				'id_groups' => 'users',
-			),
-		),
-	);
-	
 	static function getGroupsList() {
 		global $db;
 		return $db->get_list('SELECT id FROM groups ORDER BY id');

@@ -61,7 +61,7 @@ class modules extends base {
 	
 	function checkModule($class,$table,$fields) {
 		if ($module = $this->existsModule($class,$table,true)) {
-			
+			//echo 'Module $class='.$class.' &mode='.$table.' is exists!<br>';
 		} else {
 			$id = $this->registry->db->insert('modules',array('class'=>$class,'tbl'=>$table,'title'=>$table));
 			$this->fillModuleFields($id,$fields);
@@ -100,7 +100,7 @@ class modules extends base {
 		}
 		/*if (!empty($this->registry->{$chain['tbl']}->modelRelations[$chain['tbl']])) {
 			print_r($this->registry->{$chain['tbl']}->modelRelations[$chain['tbl']]);
-			foreach ($this->registry->{$chain['tbl']}->modelRelations[$chain['tbl']]['links'] AS $k1 => $v1) {
+			foreach ($this->registry->{$chain['tbl']}->modelRelations[$chain['tbl']]['link'] AS $k1 => $v1) {
 				$chain['link'][$k1] = $this->modulesRegistry[$v1];
 			}
 		}*/

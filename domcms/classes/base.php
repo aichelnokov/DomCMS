@@ -230,7 +230,6 @@ class base {
 				$this->url['add_children'] = $this->url['add'].'&id_'.$this->mode.'=%ID_PARENT%';
 			$this->addCrumbs();
 		}
-		print_r($this->modulesChain);
 		$this->title = $this->registry->db->get_single('SELECT DISTINCT title FROM modules WHERE class="'.$this->name.'" LIMIT 1');
 		return $this->registry->modules->allow($this);
 	}
