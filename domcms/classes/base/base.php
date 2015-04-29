@@ -10,6 +10,17 @@ class base {
 	
 	// Конструктор, создает новый объект, устанавливает его настройки и режим работы
 	public function __construct($name,$config=array()) {
+		if (file_exists(ROOT_DIR.'domcms/classes/'.$name.'/model.php')) {
+			require_once(ROOT_DIR.'domcms/classes/'.$name.'/model.php');
+			if (!empty($model)) {
+				$this->model = $model;
+				unset($model);
+			}
+			if (!empty($relations)) {
+				$this->relations = $relations;
+				unset($relations);
+			}
+		}
 		$this->name=$name;
 		base::extend($this,array_merge(array(),$config));
 		$this->registry=registry::get_registry();

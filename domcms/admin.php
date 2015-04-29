@@ -15,8 +15,8 @@ else {
 	$mode = base::getvar('mode',$module);
 	$action = base::getvar('action','view');
 	// include class
-	if (file_exists(ROOT_DIR.'domcms/classes/'.$module.'.php')) {
-		require_once(ROOT_DIR.'domcms/classes/'.$module.'.php');
+	if (file_exists(ROOT_DIR.'domcms/classes/'.$module.'/'.$module.'.php')) {
+		require_once(ROOT_DIR.'domcms/classes/'.$module.'/'.$module.'.php');
 		$_SESSION['domcms'] = $module;
 		$domcms = base::j($module,$module);
 		$domcms->domcms($module,$mode,$action);
