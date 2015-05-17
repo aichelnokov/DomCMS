@@ -9,6 +9,29 @@
 	{% endif %}
 {% endmacro %}
 
+{% macro get_datepicker(field,value,domcms) %}
+	{% if domcms.current_model[field].access_write==1 and 'AUTO_INCREMENT' not in domcms.current_model[field].flags %}
+		<h6>{{ domcms.current_model[field].title|capitalize }}</h6> 
+		<div class="form-group">
+			<div class='input-group date' id='{{ field }}'>
+				<input type='text' class="form-control" />
+				<span class="input-group-addon">
+					<span class="glyphicon glyphicon-calendar"></span>
+				</span>
+			</div>
+			<script type="text/javascript">
+				$(function () {
+					$('#{{ field }}').datetimepicker({
+						format: 'D.M.YYYY H:m'
+					});
+				});
+			</script>
+		</div>
+	{% else %}
+		{{ _self.view_field(field,value|date('d.m.Y H:i'),domcms) }}
+	{% endif %}
+{% endmacro %}
+
 {% macro view_field(field,value,domcms) %}
 	<h6>{{ field|capitalize }} 
 		<span class="label label-default">{{ value }}</span>

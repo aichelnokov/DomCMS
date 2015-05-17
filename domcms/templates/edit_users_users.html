@@ -1,0 +1,43 @@
+{% extends 'edit_2_col.html' %}
+
+{% block col_1 %}
+	
+	{% import "macros.html" as macros %}
+	
+	<div class="panel panel-default">
+		<div class="panel-heading"><h3 class="panel-title">Редактирование</h3></div>
+		<div class="panel-body">
+			{{ macros.get_input('firstname',domcms.data.item.firstname,domcms) }}
+			{{ macros.get_input('phone',domcms.data.item.phone,domcms) }}
+			{{ macros.get_input('mail',domcms.data.item.mail,domcms) }}
+			{{ macros.get_input('address',domcms.data.item.address,domcms) }}
+			{{ macros.get_input('postcode',domcms.data.item.postcode,domcms) }}
+			{{ macros.get_input('sex',domcms.data.item.sex,domcms) }}
+			{{ macros.get_datepicker('birdthdate',domcms.data.item.birdthdate,domcms) }}
+			{{ macros.get_input('about',domcms.data.item.about,domcms) }}
+		</div>
+	</div>
+
+{% endblock %}
+
+{% block col_2 %}
+	
+	{% import "macros.html" as macros %}
+	
+	<div class="panel panel-default">
+		<div class="panel-heading"><h3 class="panel-title">Параметры элемента</h3></div>
+		<div class="panel-body">
+			{{ macros.get_input('id',domcms.data.item.id,domcms) }}
+		</div>
+	</div>
+	
+	<div class="panel panel-default">
+		<div class="panel-heading"><h3 class="panel-title">Данные для авторизации</h3></div>
+		<div class="panel-body">
+			{{ macros.get_input('login',domcms.data.item.login,domcms,'required') }}
+			{{ macros.get_input('password','',domcms) }}
+			{{ macros.get_input('active',domcms.data.item.active,domcms) }}
+		</div>
+	</div>
+	
+{% endblock %}

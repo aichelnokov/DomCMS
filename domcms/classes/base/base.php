@@ -251,10 +251,6 @@ class base {
 				base::redirect(strtr($this->url['edit'],array('%ID%'=>$this->id)));
 		} else {
 			$this->data['item'] = $this->getObject($this->mode);
-			//foreach ($this->filters as $k => $v)
-				//if (isset($this->data['item'][$k]))
-					//if ($this->data['item'][$k] == '')
-						//$this->data['item'][$k] = $v['value'];
 		}
 		$this->addButtons($this->modulesChain['buttons_edit']);
 		//$this->addControls($this->modulesChain['controls_edit']);
